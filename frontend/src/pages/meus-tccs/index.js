@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 
+import RootLayout from './Layout'
+
 const MeusTccsPage = () => {
 
     const items = [
@@ -36,7 +38,11 @@ const MeusTccsPage = () => {
 
     const [afirmoQueConversei, setAfirmoQueConversei] = useState(false);
 
-    return <div>
+    return (
+    <RootLayout>
+        
+        <div>
+        {/*
         <div style={{backgroundColor: '#2f9e41'}}>
             <div className='max-w-screen-lg mx-auto flex justify-between items-center p-3'>
                 <Image
@@ -56,6 +62,7 @@ const MeusTccsPage = () => {
                 </div>
             </div>
         </div>
+        */}
 
         <div style={{backgroundColor: '#f9fafb'}}>
             <Menubar model={items} style={{borderWidth: 0}} className='max-w-screen-lg mx-auto' />
@@ -101,8 +108,10 @@ const MeusTccsPage = () => {
         </div>
 
         
-    </div>;
+    </div>
 
-}
+    </RootLayout>
+    );
+};
 
 export default MeusTccsPage;
