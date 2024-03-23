@@ -8,7 +8,9 @@ import { useState } from 'react';
 import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 
-import RootLayout from './Layout'
+
+import Head from 'next/head';
+import RootLayout from '../layout'
 
 const MeusTccsPage = () => {
 
@@ -40,6 +42,10 @@ const MeusTccsPage = () => {
 
     return (
     <RootLayout>
+
+        <Head>
+            <title>Meus TCCs</title>  
+        </Head>
         
         <div>
         {/*
