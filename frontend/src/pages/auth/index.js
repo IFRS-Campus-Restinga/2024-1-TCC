@@ -26,7 +26,7 @@ const AuthPage = () => {
     }
 
     const handleLoginClick2 = () => {
-        window.location.href = 'http://localhost:8000/auth-google';
+        window.location.href = `${process.env.apiBaseUrl}/auth-google`;
     }
 
     const fetchAuthCallback = async () => {
@@ -55,8 +55,8 @@ const AuthPage = () => {
     }, []);
 
     return <>
-        <div className='max-w-screen-lg mx-auto bg-white m-3 mt-6 flex flex-col'>
-            <div className='flex flex-wrap align-items-center justify-around items-center py-10'>
+        <div className='flex flex-col max-w-screen-lg m-3 mx-auto mt-6 bg-white'>
+            <div className='flex flex-wrap items-center justify-around py-10 align-items-center'>
                 <div>
                     <Image
                         src="/ifrs_colorido.svg"
@@ -65,20 +65,20 @@ const AuthPage = () => {
                         width={400}
                     />
                 </div>
-                <div>               
+                <div>
                     <Button onClick={handleLoginClick2} label="Entrar com o Google" icon="pi pi-google" className="p-button-raised p-button-rounded p-button-lg p-m-2" />
                 </div>
             </div>
         </div>
-        <div className='max-w-screen-lg mx-auto bg-white m-3 mt-6 flex flex-col'>
-            <h1 className='text-2xl font-bold px-6 py-2'>
+        <div className='flex flex-col max-w-screen-lg m-3 mx-auto mt-6 bg-white'>
+            <h1 className='px-6 py-2 text-2xl font-bold'>
                 Selecione a conta de usuário
             </h1>
-            <div className='flex flex-row justify-around p-5 gap-5'>
-                <Dropdown value={username} onChange={(e) => setUsername(e.value)} options={usuarios} optionLabel="name" 
+            <div className='flex flex-row justify-around gap-5 p-5'>
+                <Dropdown value={username} onChange={(e) => setUsername(e.value)} options={usuarios} optionLabel="name"
                     placeholder="Selecione a conta" className="w-1/2 md:w-14rem" />
                 <Button onClick={handleLoginClick} label="Entrar" icon="pi pi-signup" className="w-1/2 p-button-raised p-button-rounded p-button-lg p-m-2" />
-            </div>            
+            </div>
         </div>
     </>;
 }

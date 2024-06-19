@@ -33,7 +33,7 @@ export default function ListaProfessores() {
 
     const [exibeFormulario, setExibeFormulario] = useState(false);
 
-    const baseURL = 'http://localhost:8000';
+    const baseURL = process.env.apiBaseUrl;
 
     const fetchProfessors = async () => {
         try {
