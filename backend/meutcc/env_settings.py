@@ -17,3 +17,5 @@ GOOGLE_OAUTH2_CLIENT_ID=getenv("GOOGLE_OAUTH2_CLIENT_ID", "")
 GOOGLE_OAUTH2_CLIENT_SECRET=getenv("GOOGLE_OAUTH2_CLIENT_SECRET", "")
 GOOGLE_OAUTH2_REDIRECT_URI=getenv("GOOGLE_OAUTH2_REDIRECT_URI", "${APP_URL}/oauth2callback")
 GOOGLE_OAUTH2_SCOPE=['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+
+EXTRA_ALLOWED_HOSTS=['127.0.0.1', '.vercel.app']
