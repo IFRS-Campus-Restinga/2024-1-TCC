@@ -5,7 +5,7 @@ from rest_framework import status
 from datetime import datetime, date
 from ..models import Semestre, SemestreCoordenador, ProfessorInterno
 from ..serializers import SemestreSerializer, SemestreCoordenadorSerializer, SemestreDatasSerializer, CriarSemestreSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class SemestreAtualView(APIView):
     def get(self, request):
@@ -23,6 +23,7 @@ class SemestreAtualView(APIView):
             return Response({"detail": "Semestre atual não encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 class CoordenadorAtualView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         semestre_atual = Semestre.semestre_atual()
 
