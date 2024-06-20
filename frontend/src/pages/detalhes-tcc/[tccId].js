@@ -51,22 +51,22 @@ const FileItem = ({ file, prazoEntrega, user }) => {
         </div>
       </div>
       <div style={{ display: 'flex' }}>
-        {file?.url && (<Button icon="pi pi-download" rounded severity="success" aria-label="Baixar" style={{ marginRight: '10px' }}/>)}
-              {(file && user.resourcetype === 'Estudante') && (
-                  <>
-                      {prazoExpirado ? (
-                          <>
-                            <Button icon="pi pi-upload" rounded severity="secondary" aria-label="Anexar" style={{ marginRight: '10px' }} onClick={erroPrazoExpirado}/>
-                            <Toast ref={toast} />
-                          </>
-                      ) : (
-                          <>
-                               <Button icon="pi pi-upload" rounded severity="success" aria-label="Anexar" style={{ marginRight: '10px' }}/>
-                              {file?.url && (<Button icon="pi pi-trash" rounded severity="danger" aria-label="Excluir" style={{ marginRight: '10px' }}/>)}
-                          </>
-                      )}
-                  </>
-              )}
+        {file?.url && (<Button icon="pi pi-download" rounded severity="success" aria-label="Baixar" style={{ marginRight: '10px' }} />)}
+        {(file && user.resourcetype === 'Estudante') && (
+          <>
+            {prazoExpirado ? (
+              <>
+                <Button icon="pi pi-upload" rounded severity="secondary" aria-label="Anexar" style={{ marginRight: '10px' }} onClick={erroPrazoExpirado} />
+                <Toast ref={toast} />
+              </>
+            ) : (
+              <>
+                <Button icon="pi pi-upload" rounded severity="success" aria-label="Anexar" style={{ marginRight: '10px' }} />
+                {file?.url && (<Button icon="pi pi-trash" rounded severity="danger" aria-label="Excluir" style={{ marginRight: '10px' }} />)}
+              </>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -291,11 +291,11 @@ const DetalhesTCC = () => {
 
   if (TCCData?.id == null) {
     return (
-      <div className='max-w-screen-lg mx-auto bg-white m-3 mt-6 flex flex-col'>
-        <div className='py-3 border-0 border-b border-dashed border-gray-200'>
-          <h1 className='heading-1 px-6 text-gray-700'>Detalhes do TCC</h1>
+      <div className='flex flex-col max-w-screen-lg m-3 mx-auto mt-6 bg-white'>
+        <div className='py-3 border-0 border-b border-gray-200 border-dashed'>
+          <h1 className='px-6 text-gray-700 heading-1'>Detalhes do TCC</h1>
         </div>
-        <div className='py-6 px-2' style={{ padding: '35px', display: 'flex', justifyContent: 'center' }}>
+        <div className='px-2 py-6' style={{ padding: '35px', display: 'flex', justifyContent: 'center' }}>
           <p>TCC não encontrado.</p>
         </div>
       </div>
@@ -303,12 +303,12 @@ const DetalhesTCC = () => {
   }
 
   return (
-    <div className='max-w-screen-lg mx-auto bg-white m-3 mt-6 flex flex-col'>
-      <div className='py-3 border-0 border-b border-dashed border-gray-200' style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 className='heading-1 px-6 text-gray-700'>Detalhes do TCC</h1>
+    <div className='flex flex-col max-w-screen-lg m-3 mx-auto mt-6 bg-white'>
+      <div className='py-3 border-0 border-b border-gray-200 border-dashed' style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 className='px-6 text-gray-700 heading-1'>Detalhes do TCC</h1>
         {(user.resourcetype === 'Estudante' || user.resourcetype === 'Coordenador') && (<div className='mr-5'><Button label="Editar" icon="pi pi-pencil" style={{ backgroundColor: '#2F9E41' }} onClick={handleEditarClick} /></div>)}
       </div>
-      <div className='py-6 px-2' style={{ padding: '35px' }}>
+      <div className='px-2 py-6' style={{ padding: '35px' }}>
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between' }}>
           <p><b>Estudante: </b>{TCCData?.autor.nome}</p>
           <p><b>Fase: </b><Tag value={TCCData?.status?.[TCCData?.status.length - 1]?.statusMensagem} style={{ backgroundColor: getClassForStatus(TCCData?.status?.[TCCData?.status.length - 1]?.status) }} onClick={() => setVisibleStatus(true)}></Tag></p>
@@ -336,35 +336,35 @@ const DetalhesTCC = () => {
         <form onSubmit={onSubmit}>
           {user.resourcetype === 'Estudante' && (
             <div>
-              <div className="flex flex-wrap align-items-center mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                 <label htmlFor="tema"><b>Tema</b></label>
                 <InputText id="tema" name="tema" placeholder="Tema" className={'w-full ' + (temaMensagemErro ? 'p-invalid' : '')} defaultValue={TCCData?.tema} />
-                {temaMensagemErro && <small id="tema-help" className="text-red-500 py-1 px-2">{temaMensagemErro}</small>}
+                {temaMensagemErro && <small id="tema-help" className="px-2 py-1 text-red-500">{temaMensagemErro}</small>}
               </div>
-              <div className="flex flex-wrap align-items-center mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                 <label htmlFor="resumo"><b>Resumo</b></label>
                 <InputTextarea id="resumo" name="resumo" placeholder="Resumo" rows={6} className={'w-full ' + (resumoMensagemErro ? 'p-invalid' : '')} defaultValue={TCCData?.resumo} />
-                {resumoMensagemErro && <small id="resumo-help" className="text-red-500 py-1 px-2">{resumoMensagemErro}</small>}
+                {resumoMensagemErro && <small id="resumo-help" className="px-2 py-1 text-red-500">{resumoMensagemErro}</small>}
               </div>
             </div>
           )}
           {user.resourcetype === 'Coordenador' && (
             <div>
-              <div className="flex flex-wrap align-items-center mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                 <label htmlFor="orientador"><b>Orientador</b></label>
                 <Dropdown value={selectedOrientador} name="orientador" onChange={(e) => setSelectedOrientador(e.value)} options={orientadores} optionLabel="name" placeholder="Selecione o orientador" className={"w-full md:w-14rem" + (orientadorMensagemErro ? ' p-invalid' : '')} />
-                {orientadorMensagemErro && <small id="orientador-help" className="text-red-500 py-1 px-2">{orientadorMensagemErro}</small>}
+                {orientadorMensagemErro && <small id="orientador-help" className="px-2 py-1 text-red-500">{orientadorMensagemErro}</small>}
               </div>
               {TCCData?.coorientador && (
-                <div className="flex flex-wrap align-items-center mb-3 gap-2">
+                <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                   <label htmlFor="coorientador"><b>Corientador</b></label>
                   <Dropdown value={selectedCoorientador} name="coorientador" onChange={(e) => setSelectedCoorientador(e.value)} options={coorientadores} optionLabel="name" placeholder="Selecione o coorientador" className={"w-full md:w-14rem" + (coorientadorMensagemErro ? ' p-invalid' : '')} />
-                  {coorientadorMensagemErro && <small id="coorientador-help" className="text-red-500 py-1 px-2">{coorientadorMensagemErro}</small>}
+                  {coorientadorMensagemErro && <small id="coorientador-help" className="px-2 py-1 text-red-500">{coorientadorMensagemErro}</small>}
                 </div>
               )}
             </div>
           )}
-          <div className="flex flex-wrap align-items-center mb-3 gap-2">
+          <div className="flex flex-wrap gap-2 mb-3 align-items-center">
             <Button label={loading ? "Editando TCC" : "Editar TCC"} loading={loading} className="w-full" />
           </div>
         </form>
@@ -374,44 +374,44 @@ const DetalhesTCC = () => {
         <form onSubmit={onSubmit}>
           <div className='grid gap-4'>
             <div className='grid grid-cols-2 gap-4'>
-              <div className="flex flex-wrap align-items-center mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                 <label htmlFor="tema"><b>Data</b></label>
                 <Calendar value={datetime24h} minDate={new Date()} readOnlyInput onChange={(e) => setDateTime24h(e.value)} className='w-full' />
-                {temaMensagemErro && <small id="tema-help" className="text-red-500 py-1 px-2">{temaMensagemErro}</small>}
+                {temaMensagemErro && <small id="tema-help" className="px-2 py-1 text-red-500">{temaMensagemErro}</small>}
               </div>
-              <div className="flex flex-wrap align-items-center mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                 <label htmlFor="tema"><b>Horário</b></label>
                 <Calendar value={datetime24h} readOnlyInput onChange={(e) => setDateTime24h(e.value)} timeOnly className='w-full' />
-                {temaMensagemErro && <small id="tema-help" className="text-red-500 py-1 px-2">{temaMensagemErro}</small>}
+                {temaMensagemErro && <small id="tema-help" className="px-2 py-1 text-red-500">{temaMensagemErro}</small>}
               </div>
             </div>
 
             <div className='grid grid-cols-2 gap-4'>
-              <div className="flex flex-wrap align-items-center mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                 <label htmlFor="tema"><b>Local</b></label>
                 <Dropdown value={optionLocalSessao} onChange={(e) => setOptionLocalSessao(e.value)} options={optionsLocalSessao} className='w-full' />
               </div>
-              <div className="flex flex-wrap align-items-center mb-3 gap-2">
+              <div className="flex flex-wrap gap-2 mb-3 align-items-center">
                 <label htmlFor="tema"><b>Local</b></label>
-                <InputText id="tema" name="tema" placeholder="Tema" className={'w-full ' + (temaMensagemErro ? 'p-invalid' : '')} placeholder='Exemplo, Campus Restinga, sala 403' />
-                {temaMensagemErro && <small id="tema-help" className="text-red-500 py-1 px-2">{temaMensagemErro}</small>}
+                <InputText id="tema" name="tema" className={'w-full ' + (temaMensagemErro ? 'p-invalid' : '')} placeholder='Exemplo, Campus Restinga, sala 403' />
+                {temaMensagemErro && <small id="tema-help" className="px-2 py-1 text-red-500">{temaMensagemErro}</small>}
               </div>
             </div>
 
 
-            <div className="flex flex-wrap align-items-center mb-3 gap-2">
+            <div className="flex flex-wrap gap-2 mb-3 align-items-center">
               <label htmlFor="tema"><b>Avaliador 1</b></label>
               <Dropdown value={selectedAvaliador1} onChange={(e) => setSelectedAvaliador1(e.value)} options={avaliadores} optionLabel="name" placeholder="Selecione o nome do avaliador" filter valueTemplate={selectedAvaliadorTemplate} itemTemplate={avaliadorOptionTemplate} className="w-full md:w-14rem" />
-              {temaMensagemErro && <small id="tema-help" className="text-red-500 py-1 px-2">{temaMensagemErro}</small>}
+              {temaMensagemErro && <small id="tema-help" className="px-2 py-1 text-red-500">{temaMensagemErro}</small>}
             </div>
-            <div className="flex flex-wrap align-items-center mb-3 gap-2">
+            <div className="flex flex-wrap gap-2 mb-3 align-items-center">
               <label htmlFor="tema"><b>Avaliador 2</b></label>
               <Dropdown value={selectedAvaliador2} onChange={(e) => setSelectedAvaliador2(e.value)} options={avaliadores} optionLabel="name" placeholder="Selecione o nome do avaliador" filter valueTemplate={selectedAvaliadorTemplate} itemTemplate={avaliadorOptionTemplate} className="w-full md:w-14rem" />
-              {temaMensagemErro && <small id="tema-help" className="text-red-500 py-1 px-2">{temaMensagemErro}</small>}
+              {temaMensagemErro && <small id="tema-help" className="px-2 py-1 text-red-500">{temaMensagemErro}</small>}
             </div>
           </div>
 
-          <div className="flex flex-wrap align-items-center mb-3 gap-2">
+          <div className="flex flex-wrap gap-2 mb-3 align-items-center">
             <Button label={loading ? "Editando TCC" : "Editar TCC"} loading={loading} className="w-full" />
           </div>
         </form>
