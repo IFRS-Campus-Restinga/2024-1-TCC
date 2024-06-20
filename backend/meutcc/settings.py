@@ -83,7 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'meutcc.wsgi.application'
+WSGI_APPLICATION = 'meutcc.wsgi.app'
 
 
 # Database
