@@ -19,10 +19,22 @@ from django.urls import path, include
 from meutcc.views import GoogleAuthView, GoogleAuthCallbackView
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from .env_settings import FRONTEND_URL, APP_URL
+
+class TesteView(APIView):
+    def get(self, request):
+        return Response({
+            "frontend_url": FRONTEND_URL,
+            "app_url": APP_URL
+        }, status=200)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('app/', include('app.urls')),
     path('auth-google', GoogleAuthView.as_view(), name='auth_google'),
-    path('oauth2callback', GoogleAuthCallbackView.as_view(), name='google_callback')
+    path('oauth2callback', GoogleAuthCallbackView.as_view(), name='google_callback'),
+    path('teste', TesteView.as_view(), name='teste'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
