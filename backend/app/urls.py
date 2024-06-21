@@ -38,6 +38,18 @@ urlpatterns = [
     path('upload/professor-externo/', views.FileUploadView.as_view(), name='file-upload-externo'),
     path('notificacoes', views.ListarNotificacoesNaoLidas.as_view(), name='notificacoes'),
     path('limpar-notificacoes', views.MarcarNotificacoesComoLidas.as_view(), name='limpar-notificacoes'),
+    path('upload-autorizacao-publicacao/<int:tccId>/', views.UploadAutorizacaoPublicacaoView.as_view(), name='upload_autorizacao_publicacao'),
+    path('upload-documento-tcc/<int:tccId>/', views.UploadDocumentoTCCView.as_view(), name='upload-documento-tcc'),
+    path('upload-documento-sessao/<int:sessaoId>/', views.UploadDocumentoSessaoView.as_view(), name='upload-documento-sessao'),
+    path('excluir-documento-tcc/<int:tccId>/', views.ExcluirDocumentoTCCView.as_view(), name='excluir-documento-tcc'),
+    path('excluir-documento-sessao/<int:sessaoId>/', views.ExcluirDocumentoSessaoView.as_view(), name='excluir-documento-sessao'),
+    path('download-documento-tcc/<int:tccId>/', views.DownloadDocumentoTCCView.as_view(), name='download-documento-tcc'),
+    path('download-documento-sessao/<int:sessaoId>/', views.DownloadDocumentoSessaoView.as_view(), name='download-documento-sessao'),
+
+
+
+
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

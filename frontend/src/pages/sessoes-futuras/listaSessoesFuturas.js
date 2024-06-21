@@ -94,7 +94,7 @@ export default function ListaSessoesFuturas() {
     const validacaoCoordenadorTemplate = (rowData) => {
         return (
             <Tag className={rowData.validacaoCoordenador ? 'p-tag-success' : 'p-tag-warning'} icon={rowData.validacaoCoordenador ? 'pi pi-check-circle' : 'pi pi-exclamation-circle'}>
-                {rowData.validacaoCoordenador ? 'Revisado' : 'Não Revisado'}
+                {rowData.validacaoCoordenador ? 'Agendado' : 'Não Agendado'}
             </Tag>
         );
     };
@@ -105,7 +105,7 @@ export default function ListaSessoesFuturas() {
                 {rowData.validacaoCoordenador ? (
                     <Button label="Editar" icon='pi pi-pencil' className="p-button-outlined" onClick={() => abrirDialogo(rowData)} />
                 ) : (
-                    <Button label="Revisar" icon='pi pi-search' severity="warning" onClick={() => abrirDialogo(rowData)} />
+                    <Button label="Agendar" icon='pi pi-search' severity="warning" onClick={() => abrirDialogo(rowData)} />
                 )}
             </>
         );

@@ -7,6 +7,7 @@ import { Badge } from 'primereact/badge';
 import { formatDistanceToNow } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import NotificacoesService from "meutcc/services/NotificacoesService";
+// import { useRef } from "react";
 import CustomAvatar from "./CustomAvatar";
 
 
