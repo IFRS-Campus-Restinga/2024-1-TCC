@@ -63,11 +63,12 @@ const NavBar = ({ auth = false, notifications, unreadCount }) => {
                 <Menu model={items} popup ref={menuRight} className='absolute z-50' popupAlignment="right" />
             </div>
             <div style={{ position: 'relative', alignItems: 'center', marginLeft: '10px' }}>
-                <div onClick={async (event) => { menuNotify.current.toggle(event); await NotificacoesService.limparNotificacoes(); setVisibleUnreadBadge(false) }} style={{ cursor: "pointer", height: "20px", width: "45px", position: 'relative' }}>
-                    <i className="pi pi-bell" style={{ fontSize: '1.7rem' }}></i>
-                    {unreadCount !== 0 && visibleUnreadBadge && (
-                        <Badge value={String(unreadCount)} style={{ position: 'absolute', top: '-10px', right: '8px', backgroundColor: 'red' }}></Badge>
-                    )}
+                <div onClick={async (event) => { menuNotify.current.toggle(event); await NotificacoesService.limparNotificacoes(); setVisibleUnreadBadge(false) }} style={{ textAlign: "center", cursor: "pointer", width: "45px", position: 'relative' }}>
+                    <i className="text-gray-200 pi pi-bell p-overlay-badge" style={{ fontSize: '1.5rem' }}>
+                        {unreadCount !== 0 && visibleUnreadBadge && (
+                            <Badge value={unreadCount} severity="danger"></Badge>
+                        )}
+                    </i>
                     <Menu model={menuItems} popup ref={menuNotify} popupAlignment="left" style={{ width: '20%' }} />
                 </div>
             </div>
