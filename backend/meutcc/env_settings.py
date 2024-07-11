@@ -3,8 +3,8 @@ from os import getenv
 APP_URL=getenv("APP_URL", "http://localhost:8000")
 FRONTEND_URL=getenv("FRONTEND_URL", "http://localhost:3000")
 
-DB_CONNECTION="sqlite3" # getenv("DB_CONNECTION", "sqlite3")
-DB_NAME="db" # getenv("DB_NAME", "db")
+DB_CONNECTION=getenv("DB_CONNECTION", "sqlite3")
+DB_NAME=getenv("DB_NAME", "db")
 DB_USER=getenv("DB_USER", "")
 DB_PASSWORD=getenv("DB_PASSWORD", "")
 DB_HOST=getenv("DB_HOST", "")
