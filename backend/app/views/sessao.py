@@ -7,7 +7,6 @@ from ..models import Banca, Sessao, SessaoPrevia, SessaoFinal, Tcc, Usuario
 from ..serializers import SessaoFuturaSerializer
 from rest_framework.permissions import IsAuthenticated
 from app.services.notificacoes import notificacaoService
-from app.services.sessao import SessaoService
 from datetime import date, datetime, time, timedelta
 from dateutil.parser import parse
 
@@ -109,7 +108,6 @@ class SessaoEditOrientadorView(APIView):
 
 class SessaoCreateView(APIView):
     notificacaoService = notificacaoService()
-    sessaoService = SessaoService()
 
     def post(self, request):
         try:
