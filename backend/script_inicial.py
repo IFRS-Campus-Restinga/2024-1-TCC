@@ -16,14 +16,16 @@ status2 = StatusCadastro.objects.create(
     aprovacao = False
 )
 status3 = StatusCadastro.objects.create(
-    aprovacao = False
+    aprovacao = False,
+    justificativa="Justificativa exemplo"
 )
 
 status4 = StatusCadastro.objects.create(
     aprovacao = True
 )
 status5 = StatusCadastro.objects.create(
-    aprovacao = False
+    aprovacao = False,
+    justificativa="Justificativa exemplo"
 )
 
 # Cria um professor interno

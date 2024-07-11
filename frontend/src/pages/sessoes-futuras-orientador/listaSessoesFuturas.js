@@ -14,8 +14,8 @@ export default function ListaSessoesFuturas() {
     const [sessoes, setSessoes] = useState([]);
     const [sessaoSelecionada, setSessaoSelecionada] = useState(null);
     const [exibirDialogo, setExibirDialogo] = useState(false);
-    const [modoEdicao, setModoEdicao] = useState(false); // Estado para controlar o modo de edição
-    const [sessaoMudancas, SetSessaoMudancas] = useState({
+    const [modoEdicao, setModoEdicao] = useState(false);
+    const [sessaoMudancas, setSessaoMudancas] = useState({
         idSessao: '',
         avaliador1: '',
         avaliador2: '',
@@ -29,7 +29,7 @@ export default function ListaSessoesFuturas() {
 
     const fetchSessoesFuturas = async () => {
         try {
-            const sessoesFuturas = await SessoesService.getSessoesPendentes();
+            const sessoesFuturas = await SessoesService.getSessoesPendentesOrientador();
             setSessoes(sessoesFuturas);
         } catch (error) {
             console.error('Erro ao obter sessões:', error);
@@ -38,72 +38,85 @@ export default function ListaSessoesFuturas() {
 
     const abrirDialogo = (sessao) => {
         setSessaoSelecionada(sessao);
-        SetSessaoMudancas({
-            ...sessaoMudancas,
+        setSessaoMudancas({
             idSessao: sessao.id,
             avaliador1: sessao.banca.professores[0].id,
             avaliador2: sessao.banca.professores[1].id,
             local: sessao.local,
             dataInicio: new Date(sessao.data_inicio)
-        })
+        });
 
         setExibirDialogo(true);
     };
 
     const fecharDialogo = () => {
         setExibirDialogo(false);
-        setModoEdicao(false); // Resetando o modo de edição ao fechar o diálogo
+        setModoEdicao(false);
     };
 
     const handleConfirmarSessao = async () => {
         try {
-            await SessoesService.putEditarSessao(sessaoMudancas);
+            await SessoesService.putEditarSessaoOrientador(sessaoMudancas);
 
             fetchSessoesFuturas();
             fecharDialogo();
         } catch (error) {
             console.error('Erro ao editar sessão:', error);
-
         }
     };
 
     const footerContent = (
-        <div className='flex items-center justify-between gap-4'>
-            <div className='w-1/2'>
-                <Button className='w-full' label={modoEdicao ? "Cancelar Edição" : "Editar Sessão"} severity={modoEdicao ? "secondary" : "warning"} icon={modoEdicao ? 'pi pi-times' : 'pi pi-pencil'} iconPos='right' onClick={() => setModoEdicao(!modoEdicao)} /> {/* Alterado para ativar ou desativar o modo de edição */}
-            </div>
-            <div className='w-1/2'>
-                <div>
+        <div className='flex items-center justify-end gap-4'>
+            {sessaoSelecionada?.validacaoCoordenador ? (
+                <Button className='w-full' label="Fechar" icon='pi pi-times' onClick={fecharDialogo} />
+            ) : (
+                <div className='w-full flex justify-between gap-4'>
+                    <Button className='w-full' label={modoEdicao ? "Cancelar Edição" : "Editar Sessão"} severity={modoEdicao ? "secondary" : "warning"} icon={modoEdicao ? 'pi pi-times' : 'pi pi-pencil'} iconPos='right' onClick={() => setModoEdicao(!modoEdicao)} disabled={!modoEdicao && sessaoSelecionada?.validacaoCoordenador} />
                     <Button className='w-full' label="Confirmar Sessão" severity="success" icon='pi pi-check' iconPos='right' onClick={handleConfirmarSessao} />
                 </div>
-            </div>
+            )}
         </div>
     );
+    
 
     const dataInicioTemplate = (rowData) => {
         const data = new Date(rowData.data_inicio);
-        const dataFormatada = format(data, "dd/MM/yyyy 'às' HH:mm");
-        return dataFormatada;
+        return format(data, "dd/MM/yyyy 'às' HH:mm");
     };
 
-    const validacaoCoordenadorTemplate = (rowData) => {
+    const validacaoOrientadorTemplate = (rowData) => {
+        let tagContent = 'Pendente';
+        let tagIcon = 'pi pi-exclamation-triangle';
+        if (rowData.validacaoOrientador) {
+            tagContent = 'Confirmado';
+            tagIcon = 'pi pi-check-circle';
+        }
+        if (rowData.validacaoCoordenador) {
+            tagContent = 'Agendado';
+            tagIcon = 'pi pi-check-circle';
+        }
         return (
-            <Tag className={rowData.validacaoCoordenador ? 'p-tag-success' : 'p-tag-warning'} icon={rowData.validacaoCoordenador ? 'pi pi-check-circle' : 'pi pi-exclamation-circle'}>
-                {rowData.validacaoCoordenador ? 'Agendado' : 'Não Agendado'}
+            <Tag className={rowData.validacaoOrientador ? 'p-tag-success' : 'p-tag-warning'} icon={tagIcon}>
+                {tagContent}
             </Tag>
         );
     };
 
     const actionTemplate = (rowData) => {
-        return (
-            <>
-                {rowData.validacaoCoordenador ? (
-                    <Button label="Editar" icon='pi pi-pencil' className="p-button-outlined" onClick={() => abrirDialogo(rowData)} />
-                ) : (
-                    <Button label="Agendar" icon='pi pi-search' severity="warning" onClick={() => abrirDialogo(rowData)} />
-                )}
-            </>
-        );
+        if (rowData.validacaoCoordenador) {
+            return (
+                <Button label="Ver" icon='pi pi-eye' className="p-button-outlined" onClick={() => abrirDialogo(rowData)} />
+            );
+        } else if (rowData.validacaoOrientador) {
+            return (
+                <Button label="Editar" icon='pi pi-pencil' className="p-button-outlined" onClick={() => abrirDialogo(rowData)} />
+            );
+        }        
+        else {
+            return (
+                <Button label="Validar" icon='pi pi-check' severity="warning" onClick={() => abrirDialogo(rowData)} />
+            );
+        }
     };
 
     return (
@@ -113,7 +126,7 @@ export default function ListaSessoesFuturas() {
                     <Column field="tcc.autor.nome" header="Autor" sortable />
                     <Column field="tipo" header="Tipo" sortable />
                     <Column field="data_inicio" header="Data e Hora" body={dataInicioTemplate} sortable />
-                    <Column header="Revisado" body={validacaoCoordenadorTemplate} />
+                    <Column header="Validação Orientador" body={validacaoOrientadorTemplate} />
                     <Column body={actionTemplate} style={{ textAlign: 'center', width: '8em' }} />
                 </DataTable>
             </div>
@@ -141,19 +154,18 @@ export default function ListaSessoesFuturas() {
                     <div className='mt-5'>
                         <div className="my-2 p-field">
                             <label htmlFor="membroBanca1">Avaliador 1:</label>
-                            <DropdownProfessores disabled={!modoEdicao} value={sessaoMudancas.avaliador1} onChange={(e) => SetSessaoMudancas({ ...sessaoMudancas, avaliador1: e.target.value })} />
-
+                            <DropdownProfessores disabled={!modoEdicao} value={sessaoMudancas.avaliador1} onChange={(e) => setSessaoMudancas({ ...sessaoMudancas, avaliador1: e.target.value })} />
                         </div>
                         <div className="my-2 p-field">
                             <label htmlFor="membroBanca2">Avaliador 2:</label>
-                            <DropdownProfessores disabled={!modoEdicao} value={sessaoMudancas.avaliador2} onChange={(e) => SetSessaoMudancas({ ...sessaoMudancas, avaliador2: e.target.value })} />
+                            <DropdownProfessores disabled={!modoEdicao} value={sessaoMudancas.avaliador2} onChange={(e) => setSessaoMudancas({ ...sessaoMudancas, avaliador2: e.target.value })} />
                         </div>
                         <div className='flex justify-between gap-32'>
                             <div className="my-2 p-field">
                                 <label htmlFor="data">Data:</label>
                                 <Calendar id="dataSessao"
                                     value={sessaoMudancas.dataInicio}
-                                    onChange={(e) => SetSessaoMudancas({ ...sessaoMudancas, dataInicio: e.target.value })}
+                                    onChange={(e) => setSessaoMudancas({ ...sessaoMudancas, dataInicio: e.target.value })}
                                     dateFormat='dd/mm/yy'
                                     className=''
                                     showButtonBar
@@ -166,7 +178,7 @@ export default function ListaSessoesFuturas() {
                                 <label htmlFor="hora">Hora:</label>
                                 <Calendar id="horaSessao"
                                     value={sessaoMudancas.dataInicio}
-                                    onChange={(e) => SetSessaoMudancas({ ...sessaoMudancas, dataInicio: e.target.value })}
+                                    onChange={(e) => setSessaoMudancas({ ...sessaoMudancas, dataInicio: e.target.value })}
                                     timeOnly
                                     showIcon={modoEdicao}
                                     disabled={!modoEdicao} />
@@ -174,7 +186,7 @@ export default function ListaSessoesFuturas() {
                         </div>
                         <div className="my-2 p-field">
                             <label htmlFor="local">Local:</label>
-                            <InputText id="local" value={sessaoMudancas.local} onChange={(e) => sessaoMudancas.local(e.value)} disabled={!modoEdicao} />
+                            <InputText id="local" value={sessaoMudancas.local} onChange={(e) => setSessaoMudancas({ ...sessaoMudancas, local: e.target.value })} disabled={!modoEdicao} />
                         </div>
                     </div>
                 </div>

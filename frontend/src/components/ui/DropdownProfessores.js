@@ -47,11 +47,16 @@ export default function DropdownProfessores({ ...props }) {
     };
 
 
-    return (
-        <div className=''>
-            <Dropdown {...props} name='avaliador' options={professores} optionLabel="name" placeholder="" className="w-full md:w-14rem" valueTemplate={selectedAvaliadorTemplate} itemTemplate={avaliadorOptionTemplate} />
-        </div>
-    )
+    return (<Dropdown
+        placeholder='Selecione um Professor'
+        name='avaliador'
+        options={professores}
+        optionLabel="name"
+        className="w-full md:w-14rem"
+        valueTemplate={selectedAvaliadorTemplate}
+        itemTemplate={avaliadorOptionTemplate}
+        {...props}
+    />);
 
 }
 

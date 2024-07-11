@@ -22,7 +22,9 @@ urlpatterns = [
     path('alterar-coordenador', views.AlterarCoordenadorSemestre.as_view(), name='alterar-coordenador'),
     path('coordenador', views.CoordenadorAtualView.as_view(), name='coordenador'),
     path('sessoes-futuras', SessoesFuturasView.as_view(), name='sessoes-futuras'),
+    path('sessoes-futuras-orientador', SessoesFuturasOrientadorView.as_view(), name='sessoes-futuras-orientador'),
     path('editar-sessao', SessaoEditView.as_view(), name='editar-sessao'),
+    path('editar-sessao-orientador', SessaoEditOrientadorView.as_view(), name='editar-sessao-orientador'),
     path('professores-pendentes', views.ProfessoresPendentesListAPIView.as_view(), name='professores-pendentes'),
     path('aprovar-professor/<int:idProfessor>', views.AprovarProfessorAPIView.as_view(), name='aprovar-professor'),
     path('recusar-professor/<int:idProfessor>', views.RecusarProfessorAPIView.as_view(), name='recusar-professor'),
@@ -45,11 +47,16 @@ urlpatterns = [
     path('excluir-documento-sessao/<int:sessaoId>/', views.ExcluirDocumentoSessaoView.as_view(), name='excluir-documento-sessao'),
     path('download-documento-tcc/<int:tccId>/', views.DownloadDocumentoTCCView.as_view(), name='download-documento-tcc'),
     path('download-documento-sessao/<int:sessaoId>/', views.DownloadDocumentoSessaoView.as_view(), name='download-documento-sessao'),
-
-
-
-
-
+    path('download-ficha-avaliacao/<int:avaliacaoId>/', views.DownloadFichaAvaliacaoView.as_view(), name='download-ficha-avaliacao'),
+    path('upload-ficha-avaliacao/<int:avaliacaoId>/', views.UploadFichaAvaliacaoView.as_view(), name='upload-ficha-avaliacao'),
+    path('excluir-ficha-avaliacao/<int:avaliacaoId>/', views.ExcluirFichaAvaliacaoView.as_view(), name='excluir-ficha-avaliacao'),
+    path('download-documento-ajuste/<int:avaliacaoId>/', views.DownloadDocumentoAjusteView.as_view(), name='download-documento-ajuste'),
+    path('upload-documento-ajuste/<int:avaliacaoId>/', views.UploadDocumentoAjusteView.as_view(), name='upload-documento-ajuste'),
+    path('excluir-documento-ajuste/<int:avaliacaoId>/', views.ExcluirDocumentoAjusteView.as_view(), name='excluir-documento-ajuste'),
+    path('avaliar/<int:sessaoId>/', views.Avaliar.as_view(), name='avaliar'),
+    path('avaliar-ajustes/<int:avaliacaoId>/', views.AvaliarAjustes.as_view(), name='avaliar-ajustes'),
+    path('semestre-datas', SemestreDatasView.as_view(), name='semestre-datas'),
+    path('nova-sessao', SessaoCreateView.as_view(), name='nova-sessao'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

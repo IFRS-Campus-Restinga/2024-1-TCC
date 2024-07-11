@@ -7,6 +7,16 @@ from ..models import Semestre, SemestreCoordenador, ProfessorInterno
 from ..serializers import SemestreSerializer, SemestreCoordenadorSerializer, SemestreDatasSerializer, CriarSemestreSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+class SemestreDatasView(APIView):
+    def get(self, request):
+        semestre_atual = Semestre.semestre_atual()
+
+        if semestre_atual:
+            serializer = SemestreDatasSerializer(semestre_atual)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Semestre atual não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
 class SemestreAtualView(APIView):
     def get(self, request):
         semestre_atual = Semestre.semestre_atual()

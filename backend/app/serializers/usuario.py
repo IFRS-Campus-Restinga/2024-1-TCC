@@ -1,17 +1,32 @@
 from rest_framework import serializers
-from app.models import Usuario, Estudante, Professor, ProfessorInterno, ProfessorExterno, Coordenador
+from app.models import Usuario, Estudante, Professor, ProfessorInterno, ProfessorExterno, Coordenador, StatusCadastro
 from rest_polymorphic.serializers import PolymorphicSerializer
 from app.enums import AreaInteresseEnum
 from django.core.exceptions import ValidationError
 
+class StatusCadastroSerializer(serializers.ModelSerializer):
+    status_text = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StatusCadastro
+        fields = ['aprovacao', 'justificativa', 'dataStatus', 'status_text']
+
+    def get_status_text(self, obj):
+        if not obj.aprovacao:
+            if not obj.justificativa:
+                return "Pendente"
+            return "Reprovado"
+        return "Aprovado"
+
 
 class UsuarioSerializer(serializers.ModelSerializer):
     tipo = serializers.CharField(source='tipoString', read_only=True)
+    status_cadastro = StatusCadastroSerializer(source='status', read_only=True)
 
     class Meta:
         model = Usuario
         fields = '__all__'
-        
+
 
 class EstudanteSerializer(UsuarioSerializer):
     class Meta:
@@ -23,18 +38,22 @@ class EstudanteNomeSerializer(UsuarioSerializer):
         model = Estudante
         fields = ['id', 'nome']
 
-class ProfessorSerializer(serializers.ModelSerializer):
+class ProfessorSerializer(UsuarioSerializer):
     area_interesse = serializers.JSONField(required=False, allow_null=True)
+    status = StatusCadastroSerializer(read_only=True)
 
     class Meta:
         model = Professor
         fields = '__all__'
 
+    def get_status_details(self, obj):
+        if obj.status:
+            return StatusCadastroSerializer(obj.status).data
+        return None
+
     def validate_area_interesse(self, value):
-        # Verifique se 'value' é uma lista, por exemplo
         if not isinstance(value, list):
             raise serializers.ValidationError("A área de interesse deve ser uma lista.")
-        # Verifique se todos os elementos estão nas escolhas permitidas
         choices = {choice.value for choice in AreaInteresseEnum.choices}
         if not all(item in choices for item in value):
             raise serializers.ValidationError("Uma ou mais áreas de interesse são inválidas.")
@@ -69,6 +88,7 @@ class UsuarioPolymorphicSerializer(PolymorphicSerializer):
         ProfessorExterno: ProfessorExternoSerializer,
         Coordenador: CoordenadorSerializer,
     }
+
 
 def validate_cpf(value):
     """ Valida CPF, garantindo que ele seja válido segundo o algoritmo de dígitos verificadores. """

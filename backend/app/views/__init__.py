@@ -7,3 +7,4 @@ from .semestre import *
 from .usuario import *
 from .notificacoes import *
 from .file import *
+from .avaliacao import *

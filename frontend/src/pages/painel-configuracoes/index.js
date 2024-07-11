@@ -6,24 +6,18 @@ import ProfessorService from 'meutcc/services/ProfessorService';
 import { format, parseISO } from 'date-fns';
 import { TabView, TabPanel } from 'primereact/tabview';
 import toast from 'react-hot-toast';
-import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
 import { GUARDS } from 'meutcc/core/constants';
 import AtualizarCoordenador from 'meutcc/pages/painel-configuracoes/selecionar-coordenador';
 import { Dialog } from 'primereact/dialog';
 import { Timeline } from 'primereact/timeline';
 import { Card } from 'primereact/card';
 import { Fieldset } from 'primereact/fieldset';
-import { InputSwitch } from 'primereact/inputswitch';
 import { Message } from 'primereact/message';
 import { Paginator } from 'primereact/paginator';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import CustomAvatar from 'meutcc/components/ui/CustomAvatar';
-
-addLocale('ptbr', {
-    today: 'Hoje', clear: 'Limpar', monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'], monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'], dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'], dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'], weekHeader: 'Semana', firstDay: 0, isRTL: false, showMonthAfterYear: false, yearSuffix: '', timeOnlyTitle: 'Só Horas', timeText: 'Tempo', hourText: 'Hora', minuteText: 'Minuto', secondText: 'Segundo', ampm: false, month: 'Mês', week: 'Semana', day: 'Dia', allDayText: 'Todo o Dia'
-});
 
 const ConfiguracoesPage = () => {
     const [startDate, setStartDate] = useState(null);
@@ -184,7 +178,7 @@ const ConfiguracoesPage = () => {
         const semestresPaginados = semestres.slice(first, first + rows);
         return semestresPaginados.map((semestre, index) => (
             semestre.id == 0 ?
-                <div key={index} className=' flex justify-center items-center py-2 text-gray-700 shadow-md shadow-gray-300 border border-solid border-gray-200 rounded-lg text-center'>
+                <div key={index} className='flex items-center justify-center py-2 text-center text-gray-700 border border-gray-200 border-solid rounded-lg shadow-md  shadow-gray-300'>
                     <Button
                         className='font-bold'
                         icon={isHovered ? '' : 'pi pi-plus'}
@@ -202,12 +196,12 @@ const ConfiguracoesPage = () => {
                     </Button>
                     <Dialog header="Criar Semestre" visible={visibleForm} onHide={() => setVisibleForm(false)} style={{ width: '50vw' }}>
                         <form onSubmit={handleSubmit}>
-                            <div className="p-fluid font-bold">
-                                <div className="p-field my-2">
+                            <div className="font-bold p-fluid">
+                                <div className="my-2 p-field">
                                     <label htmlFor="periodo">Período:</label>
                                     <InputText id="periodo" value={periodo} placeholder='Ex: 2024/2' onChange={handlePeriodoChange} />
                                 </div>
-                                <div className="p-field my-2">
+                                <div className="my-2 p-field">
                                     <label htmlFor="coordenador">Coordenador:</label>
                                     <Dropdown
                                         inputId="dd-professor"
@@ -219,8 +213,8 @@ const ConfiguracoesPage = () => {
                                         className="w-full"
                                     />
                                 </div>
-                                <div className='flex justify-between items-end'>
-                                    <div className="p-field my-2">
+                                <div className='flex items-end justify-between'>
+                                    <div className="my-2 p-field">
                                         <label htmlFor="dataAberturaSemestre">Início do Semestre:</label>
                                         <Calendar id="criaDataAberturaSemestre"
                                             value={dataInicioNew}
@@ -231,7 +225,7 @@ const ConfiguracoesPage = () => {
                                             locale='ptbr'
                                             showIcon />
                                     </div>
-                                    <div className="p-field my-2">
+                                    <div className="my-2 p-field">
                                         <label htmlFor="dataFechamentoSemestre">Final do Semestre:</label>
                                         <Calendar id="criaDataFechamentoSemestre"
                                             value={dataFinalNew}
@@ -243,7 +237,7 @@ const ConfiguracoesPage = () => {
                                             showIcon />
                                     </div>
                                 </div>
-                                <div className='w-full my-2 mt-2 border-0 border-t border-dashed border-gray-200'></div>
+                                <div className='w-full my-2 mt-2 border-0 border-t border-gray-200 border-dashed'></div>
                                 <div>
                                     <Button type='submit' label='Criar Semestre' className='mt-2' severity='success'></Button>
                                 </div>
@@ -252,29 +246,29 @@ const ConfiguracoesPage = () => {
                     </Dialog>
                     <Dialog className='max-w-fit' header={"Detalhes do Semestre " + semestreDetalhes.periodo} visible={visibleDetalhes} onHide={() => setVisibleDetalhes(false)}>
                         <div className='flex justify-evenly'>
-                            <div className='content-center m-2 p-2 border border-1 border-dashed border-gray-200 rounded-lg'>
+                            <div className='content-center p-2 m-2 border border-gray-200 border-dashed rounded-lg border-1'>
                                 <div className=''>
-                                    <label htmlFor="coordenador" className="block font-bold text-gray-700 text-lg">{"Coordenador: "}</label>
-                                    <label htmlFor="coordenador" className="font-bold text-gray-700 text-lg">{semestreDetalhes.coordenador} </label>
+                                    <label htmlFor="coordenador" className="block text-lg font-bold text-gray-700">{"Coordenador: "}</label>
+                                    <label htmlFor="coordenador" className="text-lg font-bold text-gray-700">{semestreDetalhes.coordenador} </label>
                                 </div>
                                 <div className='mt-5'>
-                                    {/* <span className='block text-gray-700 text-sm'>Data de Alteração:</span>
-                    <span className='text-gray-700 text-sm'>{semestreAtual.semestreCoordenador.dataAlteracao && format(parseISO(semestreAtual.semestreCoordenador.dataAlteracao), 'dd/MM/yyyy')}</span> */}
+                                    {/* <span className='block text-sm text-gray-700'>Data de Alteração:</span>
+                    <span className='text-sm text-gray-700'>{semestreAtual.semestreCoordenador.dataAlteracao && format(parseISO(semestreAtual.semestreCoordenador.dataAlteracao), 'dd/MM/yyyy')}</span> */}
                                 </div>
                                 <div>
                                     <label htmlFor="inicio" className="block font-bold text-gray-700">Início: </label>
                                     <span className='text-gray-700'>{semestreDetalhes.dataAberturaSemestre && format(parseISO(semestreDetalhes.dataAberturaSemestre), 'dd/MM/yyyy')}</span>
                                 </div>
-                                <div className='py-3 border-0 border-r border-dashed border-gray-200 mr-12 ml-12'></div>
+                                <div className='py-3 ml-12 mr-12 border-0 border-r border-gray-200 border-dashed'></div>
                                 <div>
                                     <label htmlFor="final" className="block font-bold text-gray-700">Final: </label>
                                     <span className='text-gray-700'>{semestreDetalhes.dataFechamentoSemestre && format(parseISO(semestreDetalhes.dataFechamentoSemestre), 'dd/MM/yyyy')}</span>
                                 </div>
                             </div>
-                            <div className='m-2 p-2 border border-1 border-dashed border-gray-200 rounded-lg'>
+                            <div className='p-2 m-2 border border-gray-200 border-dashed rounded-lg border-1'>
                                 <ScrollPanel style={{ height: '200px' }}>
                                     <div className='text-center'>
-                                        <label htmlFor="historico" className="font-bold text-gray-700 text-lg">Histórico de Coordenadores</label>
+                                        <label htmlFor="historico" className="text-lg font-bold text-gray-700">Histórico de Coordenadores</label>
                                     </div>
                                     <div className=''>
                                         <Timeline
@@ -293,14 +287,14 @@ const ConfiguracoesPage = () => {
                         </div>
                     </Dialog>
                 </div> :
-                <div key={index} className='hover:border-green-500 cursor-pointer py-2 text-gray-700 shadow-md shadow-gray-300 border border-solid border-gray-200 rounded-lg text-center' onClick={() => { fetchSemestreDetalhes(semestre.id), setVisibleDetalhes(true) }}>
+                <div key={index} className='py-2 text-center text-gray-700 border border-gray-200 border-solid rounded-lg shadow-md cursor-pointer hover:border-green-500 shadow-gray-300' onClick={() => { fetchSemestreDetalhes(semestre.id), setVisibleDetalhes(true) }}>
                     <h2 className='m-0'>{semestre.periodo}</h2>
-                    <div className='w-full my-2 mt-2 border-0 border-t border-dashed border-gray-200'></div>
+                    <div className='w-full my-2 mt-2 border-0 border-t border-gray-200 border-dashed'></div>
                     <h4 className='m-0 mx-5'>Coordenador:</h4>
                     <h4 className='m-0 mx-5 font-light'>{semestre.coordenador || 'Sem Coordenador'}</h4>
-                    <div className='w-full my-2 mt-2 border-0 border-t border-dashed border-gray-200'></div>
-                    <h4 className='my-2 mx-5'>Início: {format(parseISO(semestre.dataAberturaSemestre), 'dd/MM/yyyy')}</h4>
-                    <h4 className='my-2 mx-5'>Fim: {format(parseISO(semestre.dataFechamentoSemestre), 'dd/MM/yyyy')}</h4>
+                    <div className='w-full my-2 mt-2 border-0 border-t border-gray-200 border-dashed'></div>
+                    <h4 className='mx-5 my-2'>Início: {format(parseISO(semestre.dataAberturaSemestre), 'dd/MM/yyyy')}</h4>
+                    <h4 className='mx-5 my-2'>Fim: {format(parseISO(semestre.dataFechamentoSemestre), 'dd/MM/yyyy')}</h4>
                 </div>
         ));
     };
@@ -323,38 +317,38 @@ const ConfiguracoesPage = () => {
 
     return (
         <div>
-            <div className='max-w-screen-md mx-auto bg-white m-3 mt-6'>
+            <div className='max-w-screen-md m-3 mx-auto mt-6 bg-white'>
                 <div className="card">
                     {semestreAtual && (
                         <div>
-                            <div className='py-3 border-0 border-b border-dashed border-gray-200'>
-                                <h1 className='text-center text-gray-700 mb-2'>Semestre Atual: {semestreAtual.periodo}</h1>
+                            <div className='py-3 border-0 border-b border-gray-200 border-dashed'>
+                                <h1 className='mb-2 text-center text-gray-700'>Semestre Atual: {semestreAtual.periodo}</h1>
                                 <div className='flex justify-center'>
                                     <div>
                                         <label htmlFor="inicio" className="font-bold text-gray-700">Início: </label>
                                         <span className='text-gray-700'>{semestreAtual.dataAberturaSemestre && format(parseISO(semestreAtual.dataAberturaSemestre), 'dd/MM/yyyy')}</span>
                                     </div>
-                                    <div className='py-3 border-0 border-r border-dashed border-gray-200 mr-12 ml-12'></div>
+                                    <div className='py-3 ml-12 mr-12 border-0 border-r border-gray-200 border-dashed'></div>
                                     <div>
                                         <label htmlFor="final" className="font-bold text-gray-700">Final: </label>
                                         <span className='text-gray-700'>{semestreAtual.dataFechamentoSemestre && format(parseISO(semestreAtual.dataFechamentoSemestre), 'dd/MM/yyyy')}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex justify-around mb-5 mt-0">
+                            <div className="flex justify-around mt-0 mb-5">
                                 <TabView >
                                     <TabPanel header="Coordenador de Curso" leftIcon="pi pi-user-edit mr-2" >
                                         <div>
-                                            <Card className='shadow-md shadow-gray-300 border border-solid border-gray-200 rounded-lg text-gray-700' title="Coordenador Atual">
-                                                <div className='flex justify-between items-center'>
+                                            <Card className='text-gray-700 border border-gray-200 border-solid rounded-lg shadow-md shadow-gray-300' title="Coordenador Atual">
+                                                <div className='flex items-center justify-between'>
                                                     <div className='flex items-start items-center'>
                                                         <CustomAvatar className='w-[80px] h-[80px] text-[40px]' image={semestreAtual.semestreCoordenador.avatar} fullname={semestreAtual.semestreCoordenador.coordenador_nome} size="xlarge" shape="circle" />
                                                         <div className='ml-5'>
                                                             <div className=''>
-                                                                <label htmlFor="coordenador" className="font-bold text-gray-700 text-lg">{semestreAtual.semestreCoordenador.coordenador_nome} </label>
+                                                                <label htmlFor="coordenador" className="text-lg font-bold text-gray-700">{semestreAtual.semestreCoordenador.coordenador_nome} </label>
                                                             </div>
                                                             <div className='block'>
-                                                                <span className='text-gray-700 text-sm'>Data de Alteração: {semestreAtual.semestreCoordenador.dataAlteracao && format(parseISO(semestreAtual.semestreCoordenador.dataAlteracao), 'dd/MM/yyyy')}</span>
+                                                                <span className='text-sm text-gray-700'>Data de Alteração: {semestreAtual.semestreCoordenador.dataAlteracao && format(parseISO(semestreAtual.semestreCoordenador.dataAlteracao), 'dd/MM/yyyy')}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -371,18 +365,18 @@ const ConfiguracoesPage = () => {
                                                     </div>
                                                 </div>
                                             </Card>
-                                            <Fieldset legend='Alterar Coordenador' collapsed toggleable className='text-gray-700 shadow-md shadow-gray-300 border border-solid border-gray-200 rounded-lg mt-5 p-3'>
+                                            <Fieldset legend='Alterar Coordenador' collapsed toggleable className='p-3 mt-5 text-gray-700 border border-gray-200 border-solid rounded-lg shadow-md shadow-gray-300'>
                                                 <AtualizarCoordenador onPosAlterar={atualizaCoordenadoresAposTroca} />
                                             </Fieldset>
                                         </div>
                                     </TabPanel>
                                     <TabPanel header="Prazo Envio de Propostas" leftIcon="pi pi-calendar mr-2" >
-                                        <Card title='Prazo para Submissão de Propostas' className='text-gray-700 shadow-md shadow-gray-300 border border-solid border-gray-200 rounded-lg'>
+                                        <Card title='Prazo para Submissão de Propostas' className='text-gray-700 border border-gray-200 border-solid rounded-lg shadow-md shadow-gray-300'>
 
                                             {semestreAtual.statusPrazo &&
-                                                <Message severity="info" text="O sistema está aceitando propostas para o Semestre Atual." className="border-primary w-full justify-center p-6 pl-3" />
+                                                <Message severity="info" text="O sistema está aceitando propostas para o Semestre Atual." className="justify-center w-full p-6 pl-3 border-primary" />
                                                 ||
-                                                <Message severity="warn" text="O sistema não está aceitando propostas para o Semestre Atual." className="border-primary w-full justify-center p-6 pl-3" />
+                                                <Message severity="warn" text="O sistema não está aceitando propostas para o Semestre Atual." className="justify-center w-full p-6 pl-3 border-primary" />
                                             }
 
                                             <div className='flex justify-evenly pt-9'>
@@ -397,7 +391,7 @@ const ConfiguracoesPage = () => {
                                                         locale='ptbr'
                                                     />
                                                 </div>
-                                                <div className='py-3 border-0 border-r-2 border-dashed border-gray-200 mr-12 ml-12'></div>
+                                                <div className='py-3 ml-12 mr-12 border-0 border-r-2 border-gray-200 border-dashed'></div>
                                                 <div className='text-center'>
                                                     <label htmlFor="finalPrazo" className="block font-bold text-gray-700">Fechamento do Prazo: </label>
                                                     <Calendar
@@ -414,7 +408,7 @@ const ConfiguracoesPage = () => {
 
 
                                         </Card>
-                                        <Fieldset legend='Alterar Prazo para Submissão de Propostas' collapsed toggleable className='text-gray-700 shadow-md shadow-gray-300 border border-solid border-gray-200 rounded-lg mt-5 p-3'>
+                                        <Fieldset legend='Alterar Prazo para Submissão de Propostas' collapsed toggleable className='p-3 mt-5 text-gray-700 border border-gray-200 border-solid rounded-lg shadow-md shadow-gray-300'>
                                             <div className="mb-5">
                                                 <div className='flex justify-around'>
                                                     <div className='mb-5'>
@@ -464,27 +458,27 @@ const ConfiguracoesPage = () => {
                         </div>
                     )
                         || (
-                            <div className='px-3 pb-3 max-w-screen-lg mx-auto bg-white m-3 mt-6 flex flex-col'>
-                                <div className='p-3 border-0 border-b border-dashed border-gray-200'>
-                                    <h1 className='text-center text-gray-700 mb-2'>Semestre Atual</h1>
+                            <div className='flex flex-col max-w-screen-lg px-3 pb-3 m-3 mx-auto mt-6 bg-white'>
+                                <div className='p-3 border-0 border-b border-gray-200 border-dashed'>
+                                    <h1 className='mb-2 text-center text-gray-700'>Semestre Atual</h1>
                                 </div>
-                                <div className='py-6 px-2'>
-                                    <h2 className='heading-1 px-6 text-gray-700 text-center'>Não há nenhum Semestre Cadastrado para o Período Atual.</h2>
+                                <div className='px-2 py-6'>
+                                    <h2 className='px-6 text-center text-gray-700 heading-1'>Não há nenhum Semestre Cadastrado para o Período Atual.</h2>
                                 </div>
                                 <div className='grid grid-cols-3 gap-4'>
                                     {renderSemestres()}
                                 </div>
                                 <div>
-                                    <div className='p-3 border-0 border-b border-dashed border-gray-200'></div>
-                                    <Button label="Criar Novo Semestre" icon='pi pi-plus' className='mt-5 w-full' severity="success" onClick={() => setVisibleForm(true)} />
+                                    <div className='p-3 border-0 border-b border-gray-200 border-dashed'></div>
+                                    <Button label="Criar Novo Semestre" icon='pi pi-plus' className='w-full mt-5' severity="success" onClick={() => setVisibleForm(true)} />
                                     <Dialog header="Criar Semestre" visible={visibleForm} onHide={() => setVisibleForm(false)} style={{ width: '50vw' }}>
                                         <form onSubmit={handleSubmit}>
-                                            <div className="p-fluid font-bold">
-                                                <div className="p-field my-2">
+                                            <div className="font-bold p-fluid">
+                                                <div className="my-2 p-field">
                                                     <label htmlFor="periodo">Período:</label>
                                                     <InputText id="periodo" value={periodo} placeholder='Ex: 2024/2' onChange={handlePeriodoChange} />
                                                 </div>
-                                                <div className="p-field my-2">
+                                                <div className="my-2 p-field">
                                                     <label htmlFor="coordenador">Coordenador:</label>
                                                     <Dropdown
                                                         inputId="dd-professor"
@@ -496,8 +490,8 @@ const ConfiguracoesPage = () => {
                                                         className="w-full"
                                                     />
                                                 </div>
-                                                <div className='flex justify-between items-end'>
-                                                    <div className="p-field my-2">
+                                                <div className='flex items-end justify-between'>
+                                                    <div className="my-2 p-field">
                                                         <label htmlFor="dataAberturaSemestre">Início do Semestre:</label>
                                                         <Calendar id="criaDataAberturaSemestre"
                                                             value={dataInicioNew}
@@ -508,7 +502,7 @@ const ConfiguracoesPage = () => {
                                                             locale='ptbr'
                                                             showIcon />
                                                     </div>
-                                                    <div className="p-field my-2">
+                                                    <div className="my-2 p-field">
                                                         <label htmlFor="dataFechamentoSemestre">Final do Semestre:</label>
                                                         <Calendar id="criaDataFechamentoSemestre"
                                                             value={dataFinalNew}
@@ -520,7 +514,7 @@ const ConfiguracoesPage = () => {
                                                             showIcon />
                                                     </div>
                                                 </div>
-                                                <div className='w-full my-2 mt-2 border-0 border-t border-dashed border-gray-200'></div>
+                                                <div className='w-full my-2 mt-2 border-0 border-t border-gray-200 border-dashed'></div>
                                                 <div>
                                                     <Button type='submit' label='Criar Semestre' className='mt-2' severity='success'></Button>
                                                 </div>

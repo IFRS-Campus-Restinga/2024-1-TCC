@@ -157,8 +157,8 @@ const DetalhesAdicionaisStep = ({ IsInterno, userData, setUserData, grausAcademi
                         <Dropdown className='w-full mb-2' value={userData.titulo} options={grausAcademicos} onChange={(e) => onFieldChange(e, 'titulo')} placeholder="Selecione o seu título acadêmico" />
                         <Dropdown className='w-full mb-2' value={userData.area_atuacao} options={areaAtuacao} onChange={(e) => onFieldChange(e, 'area_atuacao')} placeholder="Selecione sua área de atuação" />
                         <MultiSelect className='w-full mb-2' value={selectedInterests} options={areasInteresse} onChange={handleChange} placeholder="Selecione as suas áreas de interesse" />
-                        <label htmlFor='identidade' className='font-bold text-gray-700'> Documento de Identidade: </label>
-                        <FileUpload name="identidade" mode="basic" auto={false} accept="application/pdf,image/png,image/jpeg" maxFileSize={5000000} label="Upload Identidade" chooseLabel="Selecionar Identidade" onSelect={(e) => onFileSelect(e, setIdentidade)} className="w-full p-button-sm p-button-outlined" style={{ marginBottom: '10px', marginTop: '5px', border: '1px solid #ccc', padding: '10px', borderRadius: '10px', justifyContent: 'space-between' }} />
+                        <label htmlFor='identidade' className='font-bold text-gray-700'> Documento de Identificação: </label>
+                        <FileUpload name="identidade" mode="basic" auto={false} accept="application/pdf,image/png,image/jpeg" maxFileSize={5000000} label="Upload Identidade" chooseLabel="Selecionar Identificação" onSelect={(e) => onFileSelect(e, setIdentidade)} className="w-full p-button-sm p-button-outlined" style={{ marginBottom: '10px', marginTop: '5px', border: '1px solid #ccc', padding: '10px', borderRadius: '10px', justifyContent: 'space-between' }} />
                         <label htmlFor='diploma' className='font-bold text-gray-700'> Diploma: </label>
                         <FileUpload name="diploma" mode="basic" auto={false} accept="application/pdf,image/png,image/jpeg" maxFileSize={5000000} label="Upload Diploma" chooseLabel="Selecionar Diploma" onSelect={(e) => onFileSelect(e, setDiploma)} className="w-full p-button-sm p-button-outlined" style={{ marginBottom: '10px', marginTop: '5px', border: '1px solid #ccc', padding: '10px', borderRadius: '10px', justifyContent: 'space-between' }} />
                         <Button className='w-full mb-2' label="Concluir Cadastro" onClick={validateAndSubmit} />
@@ -172,7 +172,8 @@ const DetalhesAdicionaisStep = ({ IsInterno, userData, setUserData, grausAcademi
                     <>
                         <InputText className='w-full mb-2' value={userData.matricula} placeholder="Matrícula" onChange={(e) => onFieldChange(e, 'matricula')} />
                         <Dropdown className='w-full mb-2' value={userData.titulo} options={grausAcademicos} onChange={(e) => onFieldChange(e, 'titulo')} placeholder="Selecione o seu título acadêmico" />
-                        <Dropdown className='w-full mb-2' value={userData.area_atuacao} options={areaAtuacao} onChange={(e) => onFieldChange(e, 'area_atuacao')} placeholder="Selecione sua área de atuação" />                        <InputText className='w-full mb-2' value={userData.area_interesse} onChange={(e) => onFieldChange(e, 'area_interesse')} placeholder="Área de Interesse" />
+                        <Dropdown className='w-full mb-2' value={userData.area_atuacao} options={areaAtuacao} onChange={(e) => onFieldChange(e, 'area_atuacao')} placeholder="Selecione sua área de atuação" />                        
+                        <MultiSelect className='w-full mb-2' value={selectedInterests} options={areasInteresse} onChange={handleChange} placeholder="Selecione as suas áreas de interesse" />
                         <Button className='w-full mb-2' label="Concluir Cadastro" onClick={validateAndSubmit} />
                     </>
                 )}

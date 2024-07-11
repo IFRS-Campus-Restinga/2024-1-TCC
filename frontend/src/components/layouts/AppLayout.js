@@ -39,12 +39,15 @@ export const AppLayout = ({ children, guards }) => {
                     { label: 'Validar Cadastros', icon: 'pi pi-fw pi-users', url: '/atualizar-permissoes' },
                     { label: 'Validar Propostas', icon: 'pi pi-fw pi-book', url: '/proposta-pendente' },
                     { label: 'Validar Sessões', icon: 'pi pi-fw pi-calendar', url: '/sessoes-futuras' },
+
                 ]
             },
             { label: 'Semestres', icon: 'pi pi-fw pi-calendar', url: '/painel-configuracoes' },
+            { label: 'Lista de Usuários', icon:'pi pi-fw pi-users', url: '/lista-usuarios'}
         ],
         Professor: [
             { label: 'Propostas Pendentes', icon: 'pi pi-fw pi-thumbs-up', url: '/proposta-pendente' },
+            { label: 'Validar Sessões', icon: 'pi pi-fw pi-calendar', url: '/sessoes-futuras-orientador' },
         ],
         ProfessorInterno: [],
         ProfessorExterno: [],

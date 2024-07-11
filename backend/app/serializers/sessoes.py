@@ -22,7 +22,7 @@ class SessaoFuturaSerializer(serializers.ModelSerializer):
     tcc = TccNomesSerializer()
     class Meta:
         model = Sessao
-        fields = ['id', 'tipo', 'banca', 'local', 'presencial', 'data_inicio', 'validacaoCoordenador', 'tcc']
+        fields = ['id', 'tipo', 'banca', 'local', 'forma_apresentacao', 'data_inicio', 'validacaoCoordenador','validacaoOrientador', 'tcc']
 
     def get_banca(self, obj):
         banca_object = Banca.objects.get(sessao=obj)

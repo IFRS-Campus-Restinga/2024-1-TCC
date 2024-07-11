@@ -6,7 +6,7 @@ class TccStatusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TccStatus
-        fields = ['status', 'statusMensagem', 'dataStatus']
+        fields = ['status', 'statusMensagem', 'dataStatus', 'justificativa']
 
 class TccStatusResponderPropostaSerializer(serializers.Serializer):
     aprovar = serializers.BooleanField()

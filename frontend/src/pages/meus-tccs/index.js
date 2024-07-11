@@ -2,8 +2,10 @@
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
+
 import { GUARDS } from 'meutcc/core/constants';
 import { set } from 'date-fns';
 import { Tag } from 'primereact/tag';
@@ -15,8 +17,42 @@ import TccService from 'meutcc/services/TccService';
 import Link from 'next/link';
 import LoadingSpinner from 'meutcc/components/ui/LoadingSpinner';
 import getClassForStatus from 'meutcc/core/utils/corStatus';
+import SemestreService from 'meutcc/services/SemestreService';
 
+import styled from 'styled-components';
 
+// Estilo para exibir status
+const StatusInfo = styled.div`
+    margin-bottom: 10px;
+    h4 {
+        margin-bottom: 5px;
+    }
+`;
+
+// Estilo para justificativa da recusa
+const JustificativaContainer = styled.div`
+    margin-top: 1em;
+    h4 {
+        margin-bottom: 5px;
+    }
+`;
+
+// Estilo para o botão "Detalhes"
+const DetailsButton = styled.div`
+    display: flex;
+    justify-content: center; /* Centraliza o botão horizontalmente */
+    margin-top: 1em; /* Ajustado para ficar abaixo de tudo */
+    margin-left: 1em;
+    margin-right: 1em;
+`;
+
+// Estilo para os textareas para evitar que o conteúdo ultrapasse a largura da div
+const TextArea = styled(InputTextarea)`
+    width: 100%;
+    overflow: auto; /* Adiciona uma barra de rolagem automática se necessário */
+    white-space: pre-wrap; /* Mantém quebras de linha no texto */
+    word-wrap: break-word; /* Quebra palavras longas */
+`;
 
 const MeusTccsPage = () => {
 
@@ -27,6 +63,7 @@ const MeusTccsPage = () => {
     const [filters, setFilters] = React.useState({});
     const [tableSearchValue, setTableSearchValue] = React.useState('');
     const [expandedRows, setExpandedRows] = React.useState({});
+    const [estaNoPrazo, setEstaNoPrazo] = React.useState(false);
     
     const [tccs, setTccs] = React.useState([]);
 
@@ -54,17 +91,30 @@ const MeusTccsPage = () => {
     };
 
     const statusPriority = {
-        'PROPOSTA_ANALISE_PROFESSOR': 1,
-        'PROPOSTA_ANALISE_COORDENADOR': 2,
-        'DESENVOLVIMENTO': 3,
-        'PREVIA': 4,
-        'FINAL': 5,
+        'PROPOSTA_ANALISE_PROFESSOR': 11,
+        'PROPOSTA_ANALISE_COORDENADOR': 10,
+        'DESENVOLVIMENTO': 9,
+        'PREVIA': 8,
+        'FINAL': 7,
         'AJUSTE': 6,
-        'PROPOSTA_RECUSADA_PROFESSOR': 7,
-        'PROPOSTA_RECUSADA_COORDENADOR': 8,
-        'REPROVADO_PREVIA': 9,
-        'REPROVADO_FINAL': 10,
-        'APROVADO': 11
+        'PROPOSTA_RECUSADA_PROFESSOR': 5,
+        'PROPOSTA_RECUSADA_COORDENADOR': 4,
+        'REPROVADO_PREVIA': 3,
+        'REPROVADO_FINAL': 2,
+        'APROVADO': 1
+    };
+
+    const verificarPrazoEnvioProposta = async () => {
+        const data = await SemestreService.getPrazoEnvioProposta();
+        const hoje = new Date();
+        const dataAbertura = new Date(data.dataAberturaPrazoPropostas);
+        const dataFechamento = new Date(data.dataFechamentoPrazoPropostas);
+
+        if (hoje >= dataAbertura && hoje <= dataFechamento) {
+            setEstaNoPrazo(true);
+        } else {
+            setEstaNoPrazo(false);
+        }
     };
 
     const fetchTccs = async () => {
@@ -78,10 +128,22 @@ const MeusTccsPage = () => {
                 data = await TccService.getTccsByAluno();
             }else if(user.resourcetype == 'Coordenador'){
                 data = await TccService.getTccsCoordenacao();
-                if (data) {
-                    data.sort((a, b) => statusPriority[a.status] - statusPriority[b.status]);
-                }
             }
+
+            if (data) {
+                const dataWithPriority = data.map(item => ({
+                    ...item,
+                    priority: statusPriority[item.status[item.status.length - 1].status]
+                }));
+            
+                dataWithPriority.sort((a, b) => b.priority - a.priority);
+            
+                data = dataWithPriority.map(item => {
+                    const { priority, ...originalItem } = item;
+                    return originalItem;
+                });
+            }
+
             setTccs(data);
             setLoading(false);
         } catch (error) {
@@ -95,6 +157,7 @@ const MeusTccsPage = () => {
         }
         fetchTccs();
         initFilters();
+        verificarPrazoEnvioProposta();
     }, []);
 
     const onTableSearchChange = (e) => {
@@ -139,30 +202,63 @@ const MeusTccsPage = () => {
     }
 
     const rowExpansionTemplate = (data) => {
+        // Obtém o último status da lista de status
+        const ultimoStatus = data.status[data.status.length - 1] || {};
+
+        // Acessa o `justificativa` do último status
+        const justificativa = ultimoStatus.justificativa;
+        const status = ultimoStatus.status;
+        const statusMensagem = ultimoStatus.statusMensagem;
         return (
             <div>
                 <h4>Resumo:</h4>
-                <p>{data.resumo}</p>
-                <div className="flex justify-content-left">
-                    <Link label="Detalhes" href={`/detalhes-tcc/${data.id}`}> <Button label="Detalhes" icon='pi pi-external-link' iconPos='right' severity="success" /> </Link>
-                </div>
+                <TextArea value={data.resumo} readOnly rows={5} />
+                {status && statusMensagem && (
+                    <StatusInfo>
+                        <h4>Status Atual:</h4>
+                        <p>{statusMensagem}</p>
+                    </StatusInfo>
+                )}
+                {status === 'PROPOSTA_RECUSADA_PROFESSOR' && justificativa && (
+                    <JustificativaContainer>
+                        <h4>Justificativa da Recusa:</h4>
+                        <TextArea value={justificativa} readOnly rows={2} />
+                    </JustificativaContainer>
+                )}
+                <DetailsButton>
+                    <Link href={`/detalhes-tcc/${data.id}`} passHref>
+                        <Button label="Detalhes" icon='pi pi-external-link' iconPos='right' severity="success" />
+                    </Link>
+                </DetailsButton>
             </div>
         );
     }
 
     const AbrirProposta = () => {
-        return(
-            <>
-                <div className='py-6 px-2'>
-                    <h2 className='heading-1 px-6 text-gray-700 text-center'>Você não possui uma proposta de TCC ativa</h2>
-                </div>
-                <div className='flex justify-center pb-10'>
-                    <Link href="/submeter-proposta">
-                        <Button label="Submeter Proposta" icon='pi pi-plus' iconPos='right' className='w-full' severity="success"/>
-                    </Link>
-                </div>
-            </>
-        );
+
+        if(!estaNoPrazo){
+            return(
+                <>
+                    <div className='py-6 px-2'>
+                        <h2 className='heading-1 px-6 text-gray-700 text-center'>O período de envio de propostas está fechado!</h2>
+                    </div>
+                </>
+            );
+        }else{
+            return(
+                <>
+                    <div className='py-6 px-2'>
+                        <h2 className='heading-1 px-6 text-gray-700 text-center'>Você não possui uma proposta de TCC ativa</h2>
+                    </div>
+                    <div className='flex justify-center pb-10'>
+                        <Link href="/submeter-proposta">
+                            <Button label="Submeter Proposta" icon='pi pi-plus' iconPos='right' className='w-full' severity="success"/>
+                        </Link>
+                    </div>
+                </>
+            );
+        }
+
     }
 
     const customCollapsedIcon = <i className="pi pi-angle-down"></i>;
@@ -181,7 +277,7 @@ const MeusTccsPage = () => {
                     {(user.resourcetype === 'Coordenador' || user.resourcetype === 'ProfessorInterno' || user.resourcetype === 'ProfessorExterno') && 
                         <Column field="autor.nome" header="Aluno" style={{ width: '20%' }}></Column>
                     }
-
+                    <Column field="semestre.periodo" header="Semestre" style={{ width: '20%' }}></Column>
                     <Column field="orientador.nome" header="Orientador" style={{ width: '20%' }}></Column>
                     <Column body={coorientadorTemplate} header="Coorientador" style={{ width: '20%' }}></Column>
                     <Column body={statusBodyTemplate} header="Status" style={{ width: '10%' }} filter filterMatchMode='contains'></Column>

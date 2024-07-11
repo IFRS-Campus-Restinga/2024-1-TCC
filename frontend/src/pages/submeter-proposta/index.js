@@ -6,6 +6,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Checkbox } from 'primereact/checkbox';
 import TccService from 'meutcc/services/TccService';
 import ProfessorService from 'meutcc/services/ProfessorService';
+import SemestreService from 'meutcc/services/SemestreService';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/router';
 import { GUARDS } from 'meutcc/core/constants';
@@ -25,6 +26,7 @@ const SubmeterPropostaPage = () => {
     const [resumoMensagemErro, setResumoMensagemErro] = React.useState('');
     const [orientadorMensagemErro, setOrientadorMensagemErro] = React.useState('');
     const [coorientadorMensagemErro, setCoorientadorMensagemErro] = React.useState('');
+    const [estaNoPrazo, setEstaNoPrazo] = React.useState(false);
 
     const router = useRouter();
     
@@ -65,6 +67,21 @@ const SubmeterPropostaPage = () => {
         };
 
         fetchProfessores();
+
+        const verificarPrazoEnvioProposta = async () => {
+            const data = await SemestreService.getPrazoEnvioProposta();
+            const hoje = new Date();
+            const dataAbertura = new Date(data.dataAberturaPrazoPropostas);
+            const dataFechamento = new Date(data.dataFechamentoPrazoPropostas);
+
+            if (hoje >= dataAbertura && hoje <= dataFechamento) {
+                setEstaNoPrazo(true);
+            } else {
+                setEstaNoPrazo(false);
+            }
+        };
+
+        verificarPrazoEnvioProposta();
 
     }, []);   
 
@@ -145,7 +162,17 @@ const SubmeterPropostaPage = () => {
         setSelectedCoorientador(null);
     }
 
-    return <div className='max-w-screen-md mx-auto bg-white m-3 mt-6 flex flex-col'>
+    if(!estaNoPrazo){
+        return <div className='max-w-screen-md mx-auto bg-white m-3 mt-6 flex flex-col'>
+            <div className='py-3 border-0 border-b border-dashed border-gray-200'>
+                <h1 className='heading-1 text-center text-gray-700'>Submeter Proposta de TCC</h1>
+            </div>
+            <div className='py-6 px-9'>
+                <p className="text-center">Não estamos no período de envio de propostas.</p>
+            </div>
+        </div>;
+    }else{
+        return <div className='max-w-screen-md mx-auto bg-white m-3 mt-6 flex flex-col'>
             <div className='py-3 border-0 border-b border-dashed border-gray-200'>
                 <h1 className='heading-1 text-center text-gray-700'>Submeter Proposta de TCC</h1>
             </div>
@@ -190,6 +217,7 @@ const SubmeterPropostaPage = () => {
                 </form>
             </div>
     </div>;
+    }
 
 }
 

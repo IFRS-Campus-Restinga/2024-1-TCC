@@ -11,6 +11,7 @@ from .sessao import *
 from .sessaoFinal import *
 from .sessaoPrevia import *
 from .banca import *
+from .nota import *
 from .coordenador import *
 from .tccStatus import *
 from .tema import *

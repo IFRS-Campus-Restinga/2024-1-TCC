@@ -22,6 +22,7 @@ class Semestre(BaseModel):
             Q(dataFechamentoSemestre__gte=data_consulta)
         )
         
+        #TODO: Pensar sobre a possibilidade de não haver semestres ativos (página de submissão recebe erro 404f)
         if semestres.exists():
             return semestres.first()
         else:
