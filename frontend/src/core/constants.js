@@ -4,5 +4,4 @@ export const GUARDS = {
     COORDENADOR: 'Coordenador',
     PROFESSOR_INTERNO: 'ProfessorInterno',
     PROFESSOR_EXTERNO: 'ProfessorExterno',
-    SUPERADMIN: 'SuperAdmin', 
 };

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, } from 'react';
+import React, { useState, useRef } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
@@ -6,34 +6,13 @@ import { Steps } from 'primereact/steps';
 import { FileUpload } from 'primereact/fileupload';
 import { Toast } from 'primereact/toast';
 import UsuarioService from 'meutcc/services/UsuarioService';
-import CursoService from 'meutcc/services/CursoService'; // Serviço para obter os cursos da API
 import { MultiSelect } from 'primereact/multiselect';
 
 const DetalhesAdicionaisStep = ({ IsInterno, userData, setUserData, grausAcademicos, areaAtuacao, setActiveIndex, activeIndex }) => {
     const toast = useRef(null);
     const [identidade, setIdentidade] = useState(null);
     const [diploma, setDiploma] = useState(null);
-    const [cursos, setCursos] = useState([]); // Lista de cursos
     const [selectedInterests, setSelectedInterests] = useState(userData.area_interesse || []);
-
-    useEffect(() => {
-        // Carrega os cursos simplificados da API
-        CursoService.getCursosSimplificados()
-            .then(cursos => {
-                setCursos(
-                    cursos.map(curso => ({
-                        label: `${curso.sigla} - ${curso.nome}`, // Formato: SIGLA - Nome
-                        value: curso.id
-                    }))
-                );
-            })
-            .catch(error => {
-                console.error('Erro ao carregar cursos:', error);
-                if (toast.current) {
-                    toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar cursos', life: 3000 });
-                }
-            });
-    }, []);    
 
     const onFieldChange = (e, fieldName) => {
         setUserData({ ...userData, [fieldName]: e.target.value });
@@ -79,148 +58,68 @@ const DetalhesAdicionaisStep = ({ IsInterno, userData, setUserData, grausAcademi
 
     const validateAndSubmit = () => {
         let error = false;
-    
-        // 1) Validação exclusiva para Coordenador:
-        if (userData.isCoordenador) {
-            if (!userData.nome) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Nome deve ser preenchido para o Coordenador.',
-                    life: 3000,
-                });
-                error = true;
-            }
-            setUserData({ 
-                ...userData, 
-                cpf: ""  // ou algum placeholder
-              });
-        } 
-        // 2) Caso não seja Coordenador, seguimos as validações atuais.
-        else {
-            if (IsInterno && !userData.isProfessor && !userData.curso) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Selecione um curso.',
-                    life: 3000,
-                });
-                error = true;
-            }
-            
-            if (!IsInterno && !userData.titulo) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Título deve ser preenchido para usuários externos.',
-                    life: 3000
-                });
-                error = true;
-            }
-            
-            if (!IsInterno && !userData.area_atuacao) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Área de atuação deve ser preenchida para usuários externos.',
-                    life: 3000
-                });
-                error = true;
-            }
-            
-            if (IsInterno && userData.isProfessor && !userData.matricula) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Matrícula deve ser preenchida para professores internos.',
-                    life: 3000
-                });
-                error = true;
-            }
-            
-            if (IsInterno && userData.isProfessor && !userData.titulo) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Título deve ser preenchido para professores internos.',
-                    life: 3000
-                });
-                error = true;
-            }
-            
-            if (IsInterno && userData.isProfessor && !userData.area_atuacao) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Área de atuação deve ser preenchida para professores internos.',
-                    life: 3000
-                });
-                error = true;
-            }
-            
-            if (IsInterno && !userData.isProfessor && !userData.matricula) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Erro',
-                    detail: 'Matrícula deve ser preenchida para estudantes.',
-                    life: 3000
-                });
-                error = true;
-            }
+
+        if (!IsInterno && !userData.titulo) {
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Título deve ser preenchido para usuários externos.', life: 3000 });
+            error = true;
         }
-    
-        // 3) Se não houver erros, segue com o envio
+        if (!IsInterno && !userData.area_atuacao) {
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Área de atuação deve ser preenchida para usuários externos.', life: 3000 });
+            error = true;
+        }
+        if (IsInterno && userData.isProfessor && !userData.matricula) {
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Matrícula deve ser preenchida para professores internos.', life: 3000 });
+            error = true;
+        }
+        if (IsInterno && userData.isProfessor && !userData.titulo) {
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Título deve ser preenchido para professores internos.', life: 3000 });
+            error = true;
+        }
+        if (IsInterno && userData.isProfessor && !userData.area_atuacao) {
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Área de atuação deve ser preenchida para professores internos.', life: 3000 });
+            error = true;
+        }
+        if (IsInterno && !userData.isProfessor && !userData.matricula) {
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Matrícula deve ser preenchida para estudantes.', life: 3000 });
+            error = true;
+        }
+
         if (!error) {
             const formData = new FormData();
-
-            formData.append('isProfessor', userData.isProfessor);
-
-            formData.append('isInterno', IsInterno)
-
-            formData.append('isCoordenador', userData.isCoordenador)
             formData.append('nome', userData.nome);
             formData.append('cpf', userData.cpf);
             formData.append('email', userData.email);
             formData.append('titulo', userData.titulo);
             formData.append('avatar', userData.avatar);
             formData.append('area_atuacao', userData.area_atuacao);
-            formData.append('area_interesse', JSON.stringify(userData.area_interesse));
-    
+            formData.append('area_interesse', JSON.stringify(userData.area_interesse)); // Certificando que area_interesse é uma string JSON
+
             if (userData.matricula) formData.append('matricula', userData.matricula);
             if (userData.titulo) formData.append('titulo', userData.titulo);
             if (userData.area_atuacao) formData.append('area', userData.area_atuacao);
-            if (userData.area_interesse) {
-                formData.append('area_interesse', JSON.stringify(userData.area_interesse));
-            }
-            if (userData.curso) formData.append('curso', userData.curso);
-    
-            // Arquivos (identidade, diploma)
+            if (userData.area_interesse) formData.append('area_interesse', JSON.stringify(userData.area_interesse)); // Certificando que area_interesse é uma string JSON
+
+            // Certifique-se de que 'identidade' e 'diploma' são realmente arquivos
             if (identidade) {
                 formData.append('identidade', identidade, identidade.name);
             }
             if (diploma) {
                 formData.append('diploma', diploma, diploma.name);
             }
-    
+
             UsuarioService.criarUsuario(formData)
                 .then(response => {
                     console.log('Usuário criado com sucesso:', response);
-                    window.location.pathname = '/';
+                    window.location.pathname = ('/');
                 })
                 .catch(error => {
                     console.error('Erro ao criar usuário:', error);
                     if (toast.current) {
-                        toast.current.show({
-                            severity: 'error',
-                            summary: 'Erro',
-                            detail: 'Erro ao criar usuário',
-                            life: 3000
-                        });
+                        toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Erro ao criar usuário', life: 3000 });
                     }
                 });
         }
     };
-    
 
     React.useEffect(() => {
         // Atualiza os interesses selecionados quando o componente recebe novos dados
@@ -240,14 +139,13 @@ const DetalhesAdicionaisStep = ({ IsInterno, userData, setUserData, grausAcademi
 
     return (
         <div className='py-6 px-9'>
-            {console.log(userData)}
             <Toast ref={toast} />
             <div className='max-w-screen-md mx-auto bg-white m-3 mt-6 flex flex-col py-6 px-9'>
                 <div className='py-3 border-0 border-b border-dashed border-gray-200'>
-                    <Steps model={steps} activeIndex={activeIndex} onSelect={(e) => setActiveIndex(e.index)} readOnly={false} />
+                    <Steps model={steps} activeIndex={activeIndex} onSelect={(e) => setActiveIndex(e.index)} readOnly={true} />
                     <h1 className='heading-1 text-center text-gray-700'>Dados Adicionais</h1>
                 </div>
-                {IsInterno === false &&(
+                {IsInterno === false ? (
                     <>
                         <Dropdown className='w-full mb-2' value={userData.titulo} options={grausAcademicos} onChange={(e) => onFieldChange(e, 'titulo')} placeholder="Selecione o seu título acadêmico" />
                         <Dropdown className='w-full mb-2' value={userData.area_atuacao} options={areaAtuacao} onChange={(e) => onFieldChange(e, 'area_atuacao')} placeholder="Selecione sua área de atuação" />
@@ -258,44 +156,18 @@ const DetalhesAdicionaisStep = ({ IsInterno, userData, setUserData, grausAcademi
                         <FileUpload name="diploma" mode="basic" auto={false} accept="application/pdf,image/png,image/jpeg" maxFileSize={5000000} label="Upload Diploma" chooseLabel="Selecionar Diploma" onSelect={(e) => onFileSelect(e, setDiploma)} className="w-full p-button-sm p-button-outlined" style={{ marginBottom: '10px', marginTop: '5px', border: '1px solid #ccc', padding: '10px', borderRadius: '10px', justifyContent: 'space-between' }} />
                         <Button className='w-full mb-2' label="Concluir Cadastro" onClick={validateAndSubmit} />
                     </>
-                )}
-                {(userData.isProfessor === false && userData.isCoordenador === false) &&(
+                ) : userData.isProfessor === false ? (
                     <>
-                        <InputText className='w-full mb-2' value={userData.matricula} placeholder="Matrícula" onChange={(e) => setUserData({ ...userData, matricula: e.target.value })} />
-                        <Dropdown
-                            className="w-full mb-2"
-                            value={userData.curso} // Valor atual selecionado
-                            options={cursos} // Lista de cursos
-                            onChange={(e) => onFieldChange(e, 'curso')} // Atualiza o estado de userData
-                            placeholder="Selecione o curso"
-                            filter // Adiciona a funcionalidade de filtro
-                            showClear // Adiciona a opção para limpar a seleção
-                        />
+                        <InputText className='w-full mb-2' value={userData.matricula} placeholder="Matrícula" onChange={(e) => onFieldChange(e, 'matricula')} />
                         <Button className='w-full mb-2' label="Concluir Cadastro" onClick={validateAndSubmit} />
                     </>
-                )}
-                {userData.isProfessor === true &&(
+                ) : (
                     <>
                         <InputText className='w-full mb-2' value={userData.matricula} placeholder="Matrícula" onChange={(e) => onFieldChange(e, 'matricula')} />
                         <Dropdown className='w-full mb-2' value={userData.titulo} options={grausAcademicos} onChange={(e) => onFieldChange(e, 'titulo')} placeholder="Selecione o seu título acadêmico" />
                         <Dropdown className='w-full mb-2' value={userData.area_atuacao} options={areaAtuacao} onChange={(e) => onFieldChange(e, 'area_atuacao')} placeholder="Selecione sua área de atuação" />
                         <MultiSelect className='w-full mb-2' value={selectedInterests} options={areasInteresse} onChange={handleChange} placeholder="Selecione as suas áreas de interesse" />
                         <Button className='w-full mb-2' label="Concluir Cadastro" onClick={validateAndSubmit} />
-                    </>
-                )}
-                {userData.isCoordenador === true &&(
-                    <>
-                     <div className="mt-4">
-                    <p className="mb-2 font-semibold">
-                        Você está se cadastrando como <span className="text-blue-600">COORDENADOR</span>.
-                    </p>
-                    <Button
-                        label="Finalizar Cadastro"
-                        className="w-full"
-                        onClick={validateAndSubmit}
-                        severity="success"
-                    />
-                </div>
                     </>
                 )}
             </div>
