@@ -11,6 +11,7 @@ import Image from "next/image";
 import NotificacoesService from "meutcc/services/NotificacoesService";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import WidgetManualVLibras from "meutcc/libs/widgetVLibras";
 
 
 export const AppLayout = ({ children, guards }) => {
@@ -21,12 +22,26 @@ export const AppLayout = ({ children, guards }) => {
     const [coordenadorNome, setCoordenadorNome] = useState('');
 
     const menuItemTemplate = (item) => {
-        return <Link href={item.url} className="p-menuitem-link" aria-hidden="true">
-            <span className={'p-menuitem-icon ' + item.icon || ''}></span>
-            <span className="p-menuitem-text">{item.label}</span>
-        </Link>;
-
+        // Verifica se o item tem uma URL para habilitar a navegação
+        if (item.url) {
+            return (
+                <Link href={item.url} className="p-menuitem-link">
+                    {item.icon && <span className={'p-menuitem-icon ' + item.icon}></span>}
+                    <span className="p-menuitem-text">{item.label}</span>
+                </Link>
+            );
+        }
+    
+        // Caso não tenha URL, apenas renderiza o item como expansível
+        return (
+            <span className="p-menuitem-link" aria-hidden="true">
+                {item.icon && <span className={'p-menuitem-icon ' + item.icon}></span>}
+                <span className="p-menuitem-text">{item.label}</span>
+            </span>
+        );
     };
+    
+    
 
     const typesMenu = {
         Todos: [
@@ -38,14 +53,13 @@ export const AppLayout = ({ children, guards }) => {
         ],
         Coordenador: [
             {
-                label: 'Validar', icon: 'pi pi-fw pi-check', url: '',
+                label: 'Validar', icon: 'pi pi-fw pi-check',
                 items: [
                     { label: 'Validar Cadastros', icon: 'pi pi-fw pi-users', url: '/atualizar-permissoes' },
                     { label: 'Validar Propostas', icon: 'pi pi-fw pi-book', url: '/proposta-pendente' },
                     { label: 'Validar Sessões', icon: 'pi pi-fw pi-calendar', url: '/sessoes-futuras' },
                 ]
             },
-            { label: 'Semestres', icon: 'pi pi-fw pi-calendar', url: '/painel-configuracoes' },
             { label: 'Lista de Usuários', icon:'pi pi-fw pi-users', url: '/lista-usuarios'},
             {
                 label: 'Sugestões de Tema', icon: 'pi pi-fw pi-list', url: '',
@@ -53,7 +67,8 @@ export const AppLayout = ({ children, guards }) => {
                     { label: 'Listar Sugestões', icon: 'pi pi-fw pi-list', url: '/sugestoes-temas-tcc' },
                     { label: 'Minhas Sugestões', icon: 'pi pi-fw pi-plus', url: '/minhas-sugestoes' },
                 ]
-            }
+            },
+            { label: 'Dashboard', icon: 'pi pi-fw pi-cog', url: '/superadmin/dashboard' }
         ],
         Professor: [
             { label: 'Propostas Pendentes', icon: 'pi pi-fw pi-thumbs-up', url: '/proposta-pendente' },
@@ -68,8 +83,23 @@ export const AppLayout = ({ children, guards }) => {
         ],
         ProfessorInterno: [],
         ProfessorExterno: [],
+        SuperAdmin: [
+            { label: 'Dashboard', icon: 'pi pi-fw pi-cog', url: '/superadmin/dashboard' },
+        ],
     };
-    const items = typesMenu.Todos.concat(['ProfessorInterno', 'ProfessorExterno'].includes(user?.resourcetype) ? typesMenu.Professor : []).concat(typesMenu[user?.resourcetype] || []).map((item) => ({ ...item, template: menuItemTemplate }));
+    const items = typesMenu.Todos
+    .filter((item) => 
+        user?.resourcetype === 'SuperAdmin' 
+            ? item.label !== 'Inicio' && item.label !== 'Meus TCCs' // Remove "Inicio" e "Meus TCCs" apenas para SuperAdmin
+            : true
+    )
+    .concat(
+        ['ProfessorInterno', 'ProfessorExterno'].includes(user?.resourcetype)
+            ? typesMenu.Professor
+            : []
+    )
+    .concat(typesMenu[user?.resourcetype] || [])
+    .map((item) => ({ ...item, template: menuItemTemplate }));
 
     const isUserAuth = !!user || false;
 
@@ -122,6 +152,7 @@ export const AppLayout = ({ children, guards }) => {
 
             <div style={{ minHeight: '500px' }}>
                 {children}
+                <WidgetManualVLibras/>
             </div>
 
             <footer className='bg-green-900 text-white' style={{ background: 'rgb(0 49 21)' }}>

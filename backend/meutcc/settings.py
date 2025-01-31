@@ -29,8 +29,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-CORS_ORIGIN_ALLOW_ALL = True
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,8 +44,9 @@ INSTALLED_APPS = [
     'polymorphic',
     'notifications',
     'django_apscheduler',
-
+    'axes',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,12 +57,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'axes.middleware.AxesMiddleware',
+    'app.middleware.superadmin_middleware.SuperAdminMiddleware',  # Certifique-se que está nesta posição
 ]
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", 
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'meutcc.urls'
 
@@ -154,6 +157,12 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'app.utils.custom_exception_handler.custom_exception_handler',
 }
 
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',  # Backend do django-axes
+    'app.authentication_backends.SuperAdminBackend',  # Backend exclusivo para SuperAdmin
+    'django.contrib.auth.backends.ModelBackend',  # Backend padrão do Django
+]
+
 if DEBUG:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
@@ -162,3 +171,54 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 120
+
+AXES = {
+    'FAILURE_LIMIT': 5,  # Número de tentativas antes do bloqueio
+    'COOLOFF_TIME': 1,  # Tempo de bloqueio (em horas)
+    'LOCK_OUT_AT_FAILURE': True,  # Bloqueia após atingir o limite de falhas
+    'ONLY_USER_FAILURES': True,  # Monitora falhas por email/usuário
+    'USERNAME_FORM_FIELD': 'email',  # Campo do formulário usado para login
+    'RESET_ON_SUCCESS': True,  # Reseta a contagem de falhas após login bem-sucedido
+    'EXCLUDED_URLS': [
+        '/auth-google',  # Endpoints do Google que devem ser ignorados
+        '/oauth2callback',
+        '/auth-google-drive',
+        '/drive_oauth2callback',
+        '/upload_basic',
+    ],
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'axes': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Ou 'DEBUG' para mais detalhes
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'app.authentication_backends': {  # Logger específico para o backend
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+

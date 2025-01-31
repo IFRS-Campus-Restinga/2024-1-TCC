@@ -5,7 +5,7 @@ from rest_framework import status
 from django.db.models import Max, F, Q
 from app.enums import StatusTccEnum, UsuarioTipoEnum
 from app.models import Tcc, TccStatus, Usuario, Estudante, Semestre, Professor, Coordenador, Sessao, Banca, Tema
-from app.serializers import TccSerializer, TccCreateSerializer, TccStatusResponderPropostaSerializer, TemaSerializer
+from app.serializers import TccSerializer, TccCreateSerializer, TccStatusResponderPropostaSerializer, TemaSerializer, TccEditSerializer, TccPublicSerializer, DetalhesTccPublicSerializer
 from app.services.proposta import PropostaService
 from app.services.tcc import TccService
 from app.services.notificacoes import notificacaoService
@@ -230,56 +230,71 @@ class TccStatusResponderPropostaView(CustomAPIView):
 
 class EditarTCCView(CustomAPIView):
     """
-    API para editar um TCC existente.
-
-    Métodos:
-        put(request, tccid): Edita um TCC existente.
+    API para editar um TCC existente com suporte a PATCH.
     """
+
     permission_classes = [IsAuthenticated]
 
-    def put(self, request, tccid):
+    def patch(self, request, tccid):
         """
-        Edita um TCC existente.
-
-        Args:
-            request (Request): A requisição HTTP.
-            tccid (int): ID do TCC.
-
-        Retorna:
-            Response: Resposta HTTP confirmando a edição ou mensagem de erro.
+        Edita parcialmente um TCC existente.
         """
         try:
+            # Recupera o TCC pelo ID
             tcc = Tcc.objects.get(id=tccid)
         except Tcc.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'TCC não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
-        user = request.user
+        # Obtém o perfil do usuário logado
+        try:
+            usuario = Usuario.objects.get(user=request.user)
+        except Usuario.DoesNotExist:
+            return Response(
+                {'detail': 'Perfil de usuário não encontrado.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        if user == tcc.autor.user:
-            tcc.tema = request.data.get('tema', tcc.tema)
-            tcc.resumo = request.data.get('resumo', tcc.resumo)
-            tcc.save()
-            return Response({'status': 'success', 'message': 'TCC atualizado com sucesso.'})
+        # Verifica permissões de edição
+        if usuario.id == tcc.autor.id or usuario.id == tcc.orientador.id:
+            # Permite apenas edição de "tema" e "resumo" para autores e orientadores
+            allowed_fields = {"tema", "resumo"}
+        elif usuario.tipo == UsuarioTipoEnum.COORDENADOR:
+            # Coordenadores podem editar todos os campos
+            allowed_fields = {"tema", "resumo", "orientador", "coorientador"}
+        else:
+            # Caso não seja autor, orientador ou coordenador
+            return Response(
+                {'detail': 'Você não tem permissão para editar este TCC.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
-        if user.is_superuser or Coordenador.objects.filter(user=user).exists():
-            tcc.orientador = Professor.objects.get(id=request.data.get('orientador', tcc.orientador))
-            if request.data.get('coorientador', tcc.coorientador) is not None:
-                tcc.coorientador = Professor.objects.get(id=request.data.get('coorientador', tcc.coorientador))
-            tcc.save()
-            return Response({'status': 'success', 'message': 'TCC atualizado com sucesso.'})
+        # Filtra o payload para incluir apenas os campos permitidos
+        filtered_data = {key: value for key, value in request.data.items() if key in allowed_fields}
 
-        # Se o usuário não tiver permissão
-        return Response({'status': 'error', "message": "Você não tem permissão para editar este TCC."}, status=status.HTTP_403_FORBIDDEN)
+        # Serializa os dados recebidos
+        serializer = TccEditSerializer(instance=tcc, data=filtered_data, partial=True, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'status': 'success', 'message': 'TCC atualizado com sucesso.', 'data': serializer.data},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class DetalhesTCCView(CustomAPIView):
     """
     API para visualizar os detalhes de um TCC.
 
+    Permite acesso público com dados limitados e acesso completo para usuários relacionados.
+
     Métodos:
         get(request, tccid, format=None): Retorna os detalhes de um TCC.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, tccid, format=None):
         """
@@ -290,14 +305,19 @@ class DetalhesTCCView(CustomAPIView):
             tccid (int): ID do TCC.
 
         Retorna:
-            Response: Resposta HTTP com os detalhes do TCC ou mensagem de erro.
+            Response: Resposta HTTP com os detalhes do TCC (completo para usuários relacionados,
+                      limitado para demais usuários).
         """
         bancas = []
         users_banca = []
+
         try:
+            # Busca o TCC pelo ID
             tcc = Tcc.objects.get(id=tccid)
         except Tcc.DoesNotExist:
             return Response({'status': 'error', "message": "TCC não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Verifica se existem sessões associadas ao TCC e recupera os usuários da banca
         if Sessao.objects.filter(tcc=tcc).exists():
             sessoes = Sessao.objects.filter(tcc=tcc)
             for sessao in sessoes:
@@ -305,39 +325,82 @@ class DetalhesTCCView(CustomAPIView):
                     bancas.append(Banca.objects.get(sessao=sessao))
             for banca in bancas:
                 for professor in banca.professores.all():
-                        users_banca.append(professor.user)
+                    users_banca.append(professor.user)
+
         user = request.user
-        coord = Coordenador.objects.filter(user=user)
-        if (str(user) == 'admin') or (user == tcc.autor.user) or (user == tcc.orientador.user) or (
+        if user.is_authenticated:
+            coord = Coordenador.objects.filter(user=user)
+
+            # Verifica se o usuário está relacionado ao TCC
+            if (str(user) == 'admin') or (user == tcc.autor.user) or (user == tcc.orientador.user) or (
                 tcc.coorientador and user == tcc.coorientador.user) or (coord.exists()) or (user in users_banca):
-            serializer = TccSerializer(tcc)
-            return Response(serializer.data)
-        else:
-            return Response({'status': 'alert', "message": "Você não tem permissão para visualizar este TCC."},
-                            status=status.HTTP_403_FORBIDDEN)
+                # Usuário relacionado ao TCC - retorna detalhes completos
+                serializer = TccSerializer(tcc)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Verifica se o último status permite acesso público
+        ultimo_status = TccStatus.objects.filter(tcc=tcc).order_by('-dataStatus').first()
+        if ultimo_status and ultimo_status.status in [StatusTccEnum.FINAL_AGENDADA, StatusTccEnum.APROVADO]:
+            # Usuário não relacionado - retorna apenas dados públicos
+            serializer = DetalhesTccPublicSerializer(tcc)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+        # Caso contrário, retorna uma mensagem de permissão negada
+        return Response({'status': 'alert', "message": "Você não tem permissão para visualizar este TCC."},
+                        status=status.HTTP_403_FORBIDDEN)
+
+
             
 class TCCsPublicadosView(CustomAPIView):
     """
     API para listar todos os TCCs aprovados.
 
+    Esta view retorna apenas os dados públicos dos TCCs que foram aprovados
+    para exibição na página inicial ou em outras áreas públicas do sistema.
+
+    Permissões:
+        - Qualquer usuário (autenticado ou não) pode acessar esta view.
+
     Métodos:
-        get(request): Retorna todos os TCCs aprovados.
+        get(request): Retorna uma lista de TCCs aprovados com dados públicos.
+
+    Args:
+        request (Request): A requisição HTTP.
+
+    Retorna:
+        Response: Uma lista de TCCs aprovados com os campos especificados no
+        serializer público (TccPublicSerializer).
     """
-    permission_classes = [AllowAny]
+
+    permission_classes = [AllowAny]  # Permite acesso público
 
     def get(self, request):
         """
-        Retorna todos os TCCs aprovados.
+        Retorna uma lista de TCCs aprovados.
 
-        Args:
-            request (Request): A requisição HTTP.
+        Recupera os TCCs que possuem o status de "Aprovado" no sistema e os serializa
+        utilizando o TccPublicSerializer, que retorna apenas os campos públicos.
 
         Retorna:
-            Response: Resposta HTTP com todos os TCCs aprovados ou mensagem de erro.
+            Response: JSON com os dados públicos dos TCCs aprovados.
         """
-        tccs = Tcc.objects.filter(tccstatus__status=StatusTccEnum.APROVADO)
-        serializer = TccSerializer(tccs, many=True)
-        return Response(serializer.data)
+        try:
+            # Filtra os TCCs com status "Aprovado"
+            tccs = Tcc.objects.filter(tccstatus__status=StatusTccEnum.APROVADO)
+            
+            # Serializa os TCCs utilizando o serializer público
+            serializer = TccPublicSerializer(tccs, many=True)
+            
+            # Retorna a resposta com os dados serializados
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Trata possíveis erros na execução
+            return Response(
+                {'detail': 'Erro ao listar os TCCs aprovados.', 'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class TemasSugeridosView(CustomAPIView):
     """

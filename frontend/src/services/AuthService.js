@@ -17,7 +17,6 @@ async function detalhesUsuarioPorEmail(email) {
         .then(response => response.data);
 }
 
-
 export default {
     autenticar,
     detalhesUsuario,

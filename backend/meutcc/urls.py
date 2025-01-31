@@ -19,14 +19,16 @@ from django.urls import path, include
 from meutcc.views import GoogleAuthView, GoogleAuthCallbackView, GoogleDriveView, GoogleDriveCallbackView, GoogleDriveUploadBasicView
 from django.conf import settings
 from django.conf.urls.static import static
+from .views.logout import LogoutView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('app/', include('app.urls')),
+    path('superadmin/', include('app.superadmin_urls')),  # Inclui as rotas de SuperAdmin
     path('auth-google', GoogleAuthView.as_view(), name='auth_google'),
     path('oauth2callback', GoogleAuthCallbackView.as_view(), name='google_callback'),
-
     path('auth-google-drive', GoogleDriveView.as_view(), name='auth_google_drive'),
     path('drive_oauth2callback', GoogleDriveCallbackView.as_view(), name='google_drive_callback'),
     path('upload_basic', GoogleDriveUploadBasicView.as_view(), name='upload_basic'),
+    path('logout', LogoutView.as_view(), name='logout'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

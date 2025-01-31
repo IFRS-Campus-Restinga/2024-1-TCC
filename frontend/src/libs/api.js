@@ -9,7 +9,10 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
     try {
-        const token = 'localStorage' in self && localStorage.getItem('token') || null;
+        const token =
+            ('localStorage' in self && localStorage.getItem('superadminAccessToken')) ||
+            ('localStorage' in self && localStorage.getItem('token')) ||
+            null;
         if (token) {
             config.headers.Authorization = `Token ${token}`;
         }

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from app.models import Usuario, Estudante, Professor, ProfessorInterno, ProfessorExterno, Coordenador, StatusCadastro
+from app.models import Usuario, Estudante, Professor, ProfessorInterno, ProfessorExterno, Coordenador, StatusCadastro, Curso
 from rest_polymorphic.serializers import PolymorphicSerializer
 from app.enums import AreaInteresseEnum
 from django.core.exceptions import ValidationError
@@ -271,75 +271,111 @@ def validate_file_extension(value):
 class CriarUsuarioSerializer(serializers.Serializer):
     """
     Serializer para criação de usuário.
-
-    Atributos:
-        nome (CharField): Nome do usuário.
-        cpf (CharField): CPF do usuário.
-        email (EmailField): Email do usuário.
-        avatar (CharField): Avatar do usuário.
-        isProfessor (BooleanField): Indica se o usuário é professor.
-        IsInterno (BooleanField): Indica se o professor é interno.
-        matricula (CharField): Matrícula do usuário.
-        area_atuacao (CharField): Área de atuação do professor.
-        titulo (CharField): Título acadêmico do professor.
-        area_interesse (CharField): Área de interesse do usuário.
-        identidade (FileField): Arquivo de identidade.
-        diploma (FileField): Arquivo de diploma.
-
-    Métodos:
-        validate(data): Valida os campos com base nas regras de negócio.
     """
+
+    # Campos básicos
     nome = serializers.CharField()
-    cpf = serializers.CharField(validators=[validate_cpf])
+    cpf = serializers.CharField(
+        required=False,           # Torna opcional
+        allow_blank=True,         # Permite string vazia
+        validators=[validate_cpf] # Mantém a validação de CPF caso seja fornecido
+    )
     email = serializers.EmailField(validators=[validate_unique_email])
     avatar = serializers.CharField(required=True)
-    isProfessor = serializers.BooleanField()
-    IsInterno = serializers.BooleanField(required=False, default=False)
+
+    # Flags / perfis
+    isProfessor = serializers.BooleanField(required=False, default=False)
+    isInterno = serializers.BooleanField(required=False, default=False)
+    isCoordenador = serializers.BooleanField(required=False, default=False)
+
+    # Demais campos (apenas quando for professor / estudante)
     matricula = serializers.CharField(required=False, allow_blank=True)
     area_atuacao = serializers.CharField(required=False, allow_blank=True)
     titulo = serializers.CharField(required=False, allow_blank=True)
     area_interesse = serializers.CharField(required=False, allow_blank=True)
-    identidade = serializers.FileField(required=False, validators=[validate_file_extension])
-    diploma = serializers.FileField(required=False, validators=[validate_file_extension])
-
+    identidade = serializers.FileField(
+        required=False, 
+        validators=[validate_file_extension]
+    )
+    diploma = serializers.FileField(
+        required=False, 
+        validators=[validate_file_extension]
+    )
+    curso = serializers.IntegerField(required=False, allow_null=True)
 
     def validate(self, data):
         """
-        Valida os campos com base nas regras de negócio.
-
-        Args:
-            data (dict): Dados a serem validados.
-
-        Raises:
-            serializers.ValidationError: Se as validações não forem bem-sucedidas.
+        Se for Coordenador, só exigimos nome e email.
+        Caso contrário, mantemos as validações já existentes para professor/estudante.
         """
-        is_interno = data.get('IsInterno', False)  # Usa get com um valor padrão False
+        is_coordenador = data.get('isCoordenador', False)
+        is_interno = data.get('isInterno', False)
         is_professor = data.get('isProfessor', False)
 
-        # Validações para professores internos
+        # 1) Se é COORDENADOR, exigimos APENAS nome e email.
+        if is_coordenador:
+            # Nome
+            if not data.get('nome'):
+                raise serializers.ValidationError({
+                    "nome": "Nome deve ser preenchido para Coordenador."
+                })
+            # Email
+            if not data.get('email'):
+                raise serializers.ValidationError({
+                    "email": "Email deve ser preenchido para Coordenador."
+                })
+            # Não valida cpf, matricula, etc.
+            return data
+
+        # 2) Caso NÃO seja Coordenador, segue suas regras antigas:
+        # Professor interno
         if is_interno and is_professor:
             if not data.get('matricula'):
-                raise serializers.ValidationError({"matricula": "Matrícula deve ser preenchida para professores internos."})
-            if not data.get('grau'):
-                raise serializers.ValidationError({"grau": "Grau deve ser preenchido para professores internos."})
-            if not data.get('area'):
-                raise serializers.ValidationError({"area": "Área deve ser preenchida para professores internos."})
+                raise serializers.ValidationError({
+                    "matricula": "Matrícula deve ser preenchida para professores internos."
+                })
+            if not data.get('titulo'):
+                raise serializers.ValidationError({
+                    "titulo": "Título deve ser preenchido para professores internos."
+                })
+            if not data.get('area_atuacao'):
+                raise serializers.ValidationError({
+                    "area_atuacao": "Área de atuação deve ser preenchida para professores internos."
+                })
 
-        # Validações para professores externos
+        # Professor externo
         elif not is_interno and is_professor:
-            if not data.get('grau'):
-                raise serializers.ValidationError({"grau": "Grau deve ser preenchido para professores externos."})
-            if not data.get('area'):
-                raise serializers.ValidationError({"area": "Área deve ser preenchida para professores externos."})
+            if not data.get('titulo'):
+                raise serializers.ValidationError({
+                    "titulo": "Título deve ser preenchido para professores externos."
+                })
+            if not data.get('area_atuacao'):
+                raise serializers.ValidationError({
+                    "area_atuacao": "Área de atuação deve ser preenchida para professores externos."
+                })
             if not data.get('identidade'):
-                raise serializers.ValidationError({"identidade": "Identidade deve ser enviada para professores externos."})
+                raise serializers.ValidationError({
+                    "identidade": "Identidade deve ser enviada para professores externos."
+                })
             if not data.get('diploma'):
-                raise serializers.ValidationError({"diploma": "Diploma deve ser enviado para professores externos."})
+                raise serializers.ValidationError({
+                    "diploma": "Diploma deve ser enviado para professores externos."
+                })
 
-        # Validação para estudantes
+        # Estudante interno
         elif is_interno and not is_professor:
             if not data.get('matricula'):
-                raise serializers.ValidationError({"matricula": "Matrícula deve ser preenchida para estudantes."})
+                raise serializers.ValidationError({
+                    "matricula": "Matrícula deve ser preenchida para estudantes."
+                })
+
+            # Verifica curso
+            if not data.get('curso'):
+                raise serializers.ValidationError({
+                    "curso": "Curso deve ser selecionado para estudantes."
+                })
+            # Se usar instância de Curso, você pode resolver no create/update.
+            # Ou checar se existe com: Curso.objects.get(pk=...) etc.
 
         return data
 

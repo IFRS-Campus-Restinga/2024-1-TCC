@@ -17,6 +17,20 @@ body {
   border-radius: 10px;
   size-adjust: 80%;
 }
+/* Adiciona cor escura à linha ao passar o mouse */
+.p-datatable .p-highlight {
+  background-color: #e0e0e0 !important; /* Altere para a cor desejada */
+  transition: background-color 0.2s ease-in-out; /* Transição suave */
+}
+
+/* Mantém o texto visível ao passar o mouse */
+.p-datatable .p-highlight:hover {
+  background-color: #c7c7c7 !important; /* Escurece ainda mais ao passar o mouse */
+}
+
+#buscaCurso{
+  width: auto;
+}
 
 .p-tabview-nav {
   display: flex;

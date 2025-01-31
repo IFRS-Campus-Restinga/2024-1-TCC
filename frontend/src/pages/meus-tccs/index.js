@@ -133,7 +133,7 @@ const MeusTccsPage = () => {
                 setEstaNoPrazo(false);
             }
 
-            handleApiResponse(response);
+            handleApiResponse(data);
             
         } catch (error) {
             if (error.response) {

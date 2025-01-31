@@ -52,8 +52,8 @@ export default function Table({ ...props }) {
             <DataTable value={props.tccs} paginator rows={10} dataKey="id" filters={filters}
                 globalFilterFields={['tema']} header={header} emptyMessage="Nenhum trabalho encontrado">
                 <Column field="tema" header="Tema" style={{ minWidth: '12rem' }} />
-                <Column field="autor.nome" header="Aluno" style={{ minWidth: '12rem' }} />
-                <Column field="orientador.nome" header="Orientado por" body={({ orientador, coorientador }) => coorientador === null ? orientador.nome : `${orientador.nome} e ${coorientador.nome}`} style={{ minWidth: '12rem' }} />
+                <Column field="autor" header="Aluno" style={{ minWidth: '12rem' }} />
+                <Column field="orientador" header="Orientado por" body={({ orientador, coorientador }) => coorientador === null ? orientador : `${orientador} e ${coorientador}`} style={{ minWidth: '12rem' }} />
                 <Column field="" header="Ações" body={actionBodyTemplate} style={{ minWidth: '12rem' }} />
             </DataTable>
         </div>

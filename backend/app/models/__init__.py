@@ -1,9 +1,12 @@
 from .usuario import *
-from .estudante import *
 from .statusCadastro import *
 from .professor import *
 from .professorInterno import *
 from .professorExterno import *
+from .curso import *
+from .templateAvaliacao import *
+from .criterioAvaliacao import *
+from .estudante import *
 from .semestre import *
 from .tcc import *
 from .avaliacao import *
@@ -18,3 +21,5 @@ from .tema import *
 from .semestreCoordenador import *
 from .mensagem import *
 from .credenciais import *
+from .superadmin import SuperAdmin, SuperAdminManager
+from .historicoCoordenadorCurso import *

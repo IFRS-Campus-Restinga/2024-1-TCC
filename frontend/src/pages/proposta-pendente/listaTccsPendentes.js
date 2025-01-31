@@ -47,9 +47,9 @@ export default function ListaTccsPendentes() {
 
     const aceitarConvite = async () => {
         const data = await toast.promise(TccService.responderProposta(tcc.id, { aprovar: true }), {
-            loading: 'Aprovando tcc de proposta tcc...',
-            success: 'tcc de proposta tcc aprovado com sucesso!',
-            error: 'Erro ao aprovar tcc de proposta tcc.',
+            loading: 'Aprovando proposta...',
+            success: 'Proposta aceita com sucesso!',
+            error: 'Erro ao provar proposta.',
         });
         atualizaConvitesPosAvaliacao()
     };
