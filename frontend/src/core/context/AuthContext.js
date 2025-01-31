@@ -1,3 +1,5 @@
+
+
 import AuthService from "meutcc/services/AuthService";
 import { useRouter } from "next/router";
 import React from "react";
@@ -23,26 +25,19 @@ export const AuthProvider = ({ children, guards }) => {
     React.useEffect(() => {
         const fetchUsuario = async () => {
             const accessToken = localStorage.getItem('token');
-    
+
             if (guards && guards.length > 0 && !accessToken) {
-                if (router.pathname.startsWith('/superadmin/') && router.pathname !== '/superadmin/login') {
-                    window.location.href = '/superadmin/login';
-                } else{
-                    window.location.href = ('/auth');
-                }
+                window.location.href = ('/auth');
             }
-            // Se não houver token, redireciona para o login
+
             if (!accessToken) {
                 setLoading(false);
                 return;
             }
 
-    
             try {
-                // Chama a API para obter detalhes do usuário
                 const data = await AuthService.detalhesUsuario();
 
-                //Redireciona para página de cadastro
                 if ('cadastroIncompleto' in data) {
                     setLoading(false);
                     if (router.pathname !== '/cadastro') {
@@ -50,27 +45,29 @@ export const AuthProvider = ({ children, guards }) => {
                     }
                     return;
                 }
-    
-                setUser(data); // Define o estado do usuário com os dados retornados
-    
-                // Verifica se os guards permitem o acesso
+                setUser(data);
+
                 if (guards && guards.length > 0 && !guards.includes(data.resourcetype)) {
                     window.location.href = '/acesso-proibido';
                     return;
                 }
+
             } catch (error) {
                 setUser(null);
                 localStorage.removeItem('token');
                 if (guards && guards.length > 0 && router.pathname !== '/auth') {
                     window.location.href = ('/auth');
                 }
+                console.error(error);
             }
-    
+
             setLoading(false);
-        };
-    
+
+        }
+
         fetchUsuario();
-    }, [guards, router]);
+
+    }, []);
 
     const value = {
         user,
